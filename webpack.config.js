@@ -12,21 +12,7 @@ const srcDir = path.resolve(__dirname, "src");
 
 const filename = "[name].[contenthash]";
 
-const devServer = {
-	host: "0.0.0.0",
-	port: +process.env.FRONTEND_SERVER_PORT || 8000,
-	static: false,
-	historyApiFallback: true,
-	server: {
-		type: "https",
-		options: {
-			key: fs.readFileSync(process.env.SERVER_HTTPS_KEY),
-			cert: fs.readFileSync(process.env.SERVER_HTTPS_CERT)
-		}
-	}
-};
-
-module.exports = {
+const config = {
 	mode,
 
 	entry: path.resolve(srcDir, "index.js"),
@@ -38,8 +24,6 @@ module.exports = {
 	},
 
 	devtool: "source-map",
-
-	devServer,
 
 	plugins: [
 		new CleanPlugin(),
@@ -120,3 +104,21 @@ module.exports = {
 		}
 	}
 };
+
+if (mode == "development") {
+	config.devServer = {
+		host: "0.0.0.0",
+		port: +process.env.FRONTEND_SERVER_PORT || 8000,
+		static: false,
+		historyApiFallback: true,
+		server: {
+			type: "https",
+			options: {
+				key: fs.readFileSync(process.env.SERVER_HTTPS_KEY),
+				cert: fs.readFileSync(process.env.SERVER_HTTPS_CERT)
+			}
+		}
+	};
+}
+
+module.exports = config;
