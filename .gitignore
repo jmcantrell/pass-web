@@ -1,4 +1,6 @@
 .env
 .envrc
+build
 certs
+coverage
 node_modules
