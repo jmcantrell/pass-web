@@ -1,9 +1,39 @@
-@import-sanitize;
+@import "sanitize.css";
 
 * {
 	box-sizing: border-box;
 }
 
+:root {
+	--gap: 1rem;
+}
+
 body {
-	padding: 1em;
+	padding: var(--gap);
+}
+
+form,
+fieldset,
+label {
+	display: flex;
+	flex-direction: column;
+}
+
+form,
+fieldset {
+	gap: var(--gap);
+}
+
+ul.error {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+ul.error li {
+	padding-left: 1rem;
+}
+
+ul.error li::before {
+	content: "💥 ";
 }

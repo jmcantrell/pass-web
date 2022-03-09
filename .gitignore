@@ -1,6 +1,6 @@
 .env
 .envrc
+*.pem
 build
-certs
 coverage
 node_modules

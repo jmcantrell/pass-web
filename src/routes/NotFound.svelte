@@ -1,5 +1,10 @@
-<script>
-	export let name = "Resource";
+<script context="module">
+	export const path = "*";
+	export const title = "Page Not Found";
 </script>
 
-<h1>{name} not found</h1>
+<script>
+	import NotFound from "@/components/NotFound";
+</script>
+
+<NotFound name="Page" />

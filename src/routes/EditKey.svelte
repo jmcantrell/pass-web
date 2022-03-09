@@ -1,77 +1,68 @@
+<script context="module">
+	export const path = "keys/edit";
+
+	export function title({ query }) {
+		return `Edit Key: ${query.get("name")}`;
+	}
+</script>
+
 <script>
-	import { onMount, beforeUpdate } from "svelte";
-	import { Link, navigate } from "svelte-routing";
-	import { objectFromForm } from "@/lib/form";
-	import { keys, sources } from "@/lib/localStorage";
-	import GPGKey from "@/components/GPGKey";
-	import NotFound from "@/routes/NotFound";
+	import { onMount } from "svelte";
+	import { redirect } from "@/lib/routing";
+	import { formToObject } from "@/lib/form";
+	import Link from "@/components/Link";
+	import KeyForm from "@/components/KeyForm";
+	import EnsureKey from "@/components/EnsureKey";
+	import * as listKeys from "@/routes/ListKeys";
+	import * as editSource from "@/routes/EditSource";
+	import keys from "@/local/keys";
+	import sources from "@/local/sources";
 
-	export let name;
+	export let query;
 
-	let key, sourcesUsingKey;
+	let key;
 
 	onMount(() => {
-		key = $keys[name];
+		key = query.get("name");
 	});
 
-	beforeUpdate(() => {
-		sourcesUsingKey = Object.keys($sources).filter(
-			(source) => $sources[source].options.key == name
-		);
-	});
+	$: sourcesUsingKey = Object.keys($sources).filter((source) => $sources[source].key == key);
 
-	function save(event) {
-		key.options = objectFromForm(event.target);
-		key.updated = new Date();
-		$keys[name] = key;
+	function onSubmit(event) {
+		$keys[key].options = formToObject(event.target);
+		$keys[key].updated = new Date();
 	}
 
-	function remove() {
-		if (confirm(`Remove key: ${name}?`)) {
-			$keys[name] = undefined;
-			delete $keys[name];
-			navigate("/keys");
+	function onRemoveButtonClick() {
+		if (sourcesUsingKey.length > 0) {
+			alert("Key is in use and cannot be removed!");
+		} else if (confirm(`Remove key: ${key}?`)) {
+			delete $keys[key];
+			$keys = $keys;
+			redirect(listKeys);
 		}
 	}
 </script>
 
-{#if key}
-	<h1>Edit encryption key</h1>
-
-	<form on:submit|preventDefault={save}>
-		<label for="name">Name</label>
-		<span id="name">{name}</span>
-		<GPGKey {...key.options} />
-		<input type="submit" value="Save" />
-		<input type="button" value="Remove" on:click={remove} />
+<EnsureKey name={key}>
+	<form on:submit|preventDefault={onSubmit}>
+		<fieldset>
+			<legend>Key Options</legend>
+			<KeyForm {...$keys[key].options} />
+			<input type="submit" value="Save" />
+			<input type="button" value="Remove" on:click={onRemoveButtonClick} />
+		</fieldset>
 	</form>
 
-	<section>
-		<h2>Last updated</h2>
-		<p>{new Date(key.updated)}</p>
-	</section>
+	<h2>Last Updated</h2>
+	{new Date($keys[key].updated)}
 
-	<section>
-		<h2>Sources using this key</h2>
+	{#if sourcesUsingKey.length > 0}
+		<h2>Sources Using this Key</h2>
 		<ul>
-			{#each sourcesUsingKey as source}
-				<li><Link to="sources/edit/{source}">{source}</Link></li>
+			{#each sourcesUsingKey as name}
+				<li><Link to={editSource} query={{ name }}>{name}</Link></li>
 			{/each}
 		</ul>
-	</section>
-{:else}
-	<NotFound name="Key" />
-{/if}
-
-<style>
-	form {
-		display: grid;
-		grid-template-columns: auto 1fr;
-		grid-gap: 1em;
-	}
-
-	form input[type="submit"],
-	form input[type="button"] {
-		grid-column: 1 / span 2;
-	}
-</style>
+	{/if}
+</EnsureKey>

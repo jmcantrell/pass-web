@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { DefinePlugin } = require("webpack");
 const HtmlPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin: CleanPlugin } = require("clean-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
@@ -7,6 +8,7 @@ const CssPlugin = require("mini-css-extract-plugin");
 const svelteConfig = require("./svelte.config.js");
 
 const mode = process.env.NODE_ENV || "development";
+const baseUrl = process.env.BASE_URL || "/";
 
 const srcDir = path.resolve(__dirname, "src");
 
@@ -15,12 +17,12 @@ const filename = "[name].[contenthash]";
 const config = {
 	mode,
 
-	entry: path.resolve(srcDir, "index.js"),
+	entry: path.resolve(srcDir, "index.mjs"),
 
 	output: {
 		path: path.resolve(__dirname, "build"),
 		filename: `${filename}.js`,
-		publicPath: "/"
+		publicPath: baseUrl
 	},
 
 	devtool: "source-map",
@@ -28,7 +30,6 @@ const config = {
 	plugins: [
 		new CleanPlugin(),
 		new HtmlPlugin({
-			title: "pass-web",
 			template: path.resolve(srcDir, "index.html")
 		}),
 		new CssPlugin({
@@ -41,6 +42,9 @@ const config = {
 					context: path.resolve(__dirname, "public")
 				}
 			]
+		}),
+		new DefinePlugin({
+			"process.env.BASE_URL": JSON.stringify(baseUrl)
 		})
 	],
 
@@ -61,7 +65,7 @@ const config = {
 					loader: "babel-loader",
 					options: {
 						cacheDirectory: true,
-						exclude: /node_modules/,
+						ignore: [/node_modules/],
 						presets: [
 							[
 								"@babel/preset-env",
@@ -114,8 +118,8 @@ if (mode == "development") {
 		server: {
 			type: "https",
 			options: {
-				key: fs.readFileSync(process.env.SERVER_HTTPS_KEY),
-				cert: fs.readFileSync(process.env.SERVER_HTTPS_CERT)
+				key: fs.readFileSync("localhost-key.pem"),
+				cert: fs.readFileSync("localhost-cert.pem")
 			}
 		}
 	};

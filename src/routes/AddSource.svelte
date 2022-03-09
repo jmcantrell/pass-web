@@ -1,65 +1,51 @@
+<script context="module">
+	export const path = "sources/add";
+	export const title = "Add Source";
+</script>
+
 <script>
-	import { navigate } from "svelte-routing";
-	import { objectFromForm } from "@/lib/form";
-	import { availableSources } from "@/lib/source";
-	import { sources } from "@/lib/localStorage";
+	import { beforeUpdate } from "svelte";
+	import { formToObject } from "@/lib/form";
+	import { redirect } from "@/lib/routing";
+	import * as sourceTypes from "@/lib/sources";
+	import SourceForm from "@/components/SourceForm";
+	import * as editSource from "@/routes/EditSource";
+	import sources from "@/local/sources";
+
+	export let query;
 
 	let type;
 
-	function save(event) {
-		const { name, ...options } = objectFromForm(event.target);
+	beforeUpdate(() => {
+		type = query.get("type");
+	});
 
+	function onSubmit(event) {
+		const { name, key, ...options } = formToObject(event.target);
 		if (!$sources[name] || confirm("Overwrite existing source?")) {
-			$sources[name] = { type, options, updated: new Date() };
-			navigate(`/sources/edit/${name}`, { replace: true });
+			$sources[name] = { type, key, options, updated: new Date() };
+			redirect(editSource, { query: { name } });
 		}
-	}
-
-	function cancel(event) {
-		event.target.reset();
-		type = null;
 	}
 </script>
 
-<h1>Add password source</h1>
-
 {#if type}
-	<form on:submit|preventDefault={save} on:reset|preventDefault={cancel}>
-		<label for="name">Name</label>
-		<input
-			id="name"
-			name="name"
-			placeholder="required, must be unique"
-			autocomplete="off"
-			required
-		/>
-		<svelte:component this={availableSources[type].component} />
-		<input type="submit" value="Save" />
-		<input type="reset" value="Cancel" />
+	<form on:submit|preventDefault={onSubmit}>
+		<fieldset>
+			<legend>{sourceTypes[type].name} Source Options</legend>
+			<label>
+				Name
+				<input name="name" placeholder="required, must be unique" autocomplete="off" required />
+			</label>
+			<SourceForm {type} />
+			<input type="submit" value="Save" />
+		</fieldset>
 	</form>
 {:else}
-	<h2>Select source type</h2>
-	<section>
-		{#each Object.entries(availableSources) as [id, source] (id)}
-			<button on:click={() => (type = id)}>{source.name}</button>
+	<h2>Select Source Type</h2>
+	<ul>
+		{#each Object.entries(sourceTypes) as [id, { name }] (id)}
+			<li><a href="?type={id}">{name}</a></li>
 		{/each}
-	</section>
+	</ul>
 {/if}
-
-<style>
-	form {
-		display: grid;
-		grid-template-columns: auto 1fr;
-		grid-gap: 1em;
-	}
-
-	form input[type="submit"],
-	form input[type="reset"] {
-		grid-column: 1 / span 2;
-	}
-
-	section {
-		display: flex;
-		flex-direction: column;
-	}
-</style>

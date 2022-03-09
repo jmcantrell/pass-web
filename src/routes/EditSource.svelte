@@ -1,62 +1,56 @@
+<script context="module">
+	export const path = "sources/edit";
+
+	export function title({ query }) {
+		return `Edit Source: ${query.get("name")}`;
+	}
+</script>
+
 <script>
 	import { onMount } from "svelte";
-	import { navigate } from "svelte-routing";
-	import { availableSources } from "@/lib/source";
-	import { objectFromForm } from "@/lib/form";
-	import { sources } from "@/lib/localStorage";
-	import NotFound from "@/routes/NotFound";
+	import { redirect } from "@/lib/routing";
+	import { formToObject } from "@/lib/form";
+	import * as sourceTypes from "@/lib/sources";
+	import SourceForm from "@/components/SourceForm";
+	import EnsureSource from "@/components/EnsureSource";
+	import * as listSources from "@/routes/ListSources";
+	import sources from "@/local/sources";
 
-	export let name;
+	export let query;
 
-	let source;
+	let name, type;
 
 	onMount(() => {
-		source = $sources[name];
+		name = query.get("name");
+		type = $sources[name].type;
 	});
 
-	function save(event) {
-		source.options = objectFromForm(event.target);
-		source.updated = new Date();
-		$sources[name] = source;
+	function onSubmit(event) {
+		const { key, ...options } = formToObject(event.target);
+		$sources[name].key = key;
+		$sources[name].options = options;
+		$sources[name].updated = new Date();
 	}
 
-	function remove() {
+	function onRemoveButtonClick() {
 		if (confirm(`Remove source: ${name}?`)) {
-			$sources[name] = undefined;
 			delete $sources[name];
-			navigate("/sources");
+			$sources = $sources;
+			redirect(listSources);
 		}
 	}
 </script>
 
-{#if source}
-	<h1>Edit password source</h1>
-
-	<form on:submit|preventDefault={save}>
-		<label for="name">Name</label>
-		<span id="name">{name}</span>
-		<svelte:component this={availableSources[source.type].component} {...source.options} />
-		<input type="submit" value="Save" />
-		<input type="button" value="Remove" on:click={remove} />
+<EnsureSource {name}>
+	<form on:submit|preventDefault={onSubmit}>
+		<fieldset>
+			<legend>{sourceTypes[type].name} Source Options</legend>
+			<SourceForm {type} key={$sources[name].key} options={$sources[name].options} />
+			<input type="submit" value="Save" />
+			<input type="button" value="Remove" on:click={onRemoveButtonClick} />
+		</fieldset>
 	</form>
 
-	<section>
-		<h2>Last updated</h2>
-		<p>{new Date(source.updated)}</p>
-	</section>
-{:else}
-	<NotFound name="Source" />
-{/if}
-
-<style>
-	form {
-		display: grid;
-		grid-template-columns: auto 1fr;
-		grid-gap: 1em;
-	}
-
-	form input[type="submit"],
-	form input[type="button"] {
-		grid-column: 1 / span 2;
-	}
-</style>
+	<h2>Last Updated</h2>
+	{new Date($sources[name].updated)}
+</EnsureSource>

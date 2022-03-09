@@ -1,36 +1,36 @@
 <script>
-	import { Router, Link, Route } from "svelte-routing";
-	import Keys from "@/routes/Keys";
-	import AddKey from "@/routes/AddKey";
-	import EditKey from "@/routes/EditKey";
-	import Sources from "@/routes/Sources";
-	import AddSource from "@/routes/AddSource";
-	import EditSource from "@/routes/EditSource";
+	import Link from "@/components/Link";
+	import Router from "@/components/Router";
+	import LockStoresAfterVisibilityLoss from "@/components/LockStoresAfterVisibilityLoss";
+	import * as listKeys from "@/routes/ListKeys";
+	import * as listSources from "@/routes/ListSources";
 
-	export let url = "";
+	let component, params, query, title;
 </script>
 
-<Router {url}>
-	<header>
-		<nav>
-			<Link to="">Home</Link>
-			<Link to="keys">Keys</Link>
-			<Link to="sources">Sources</Link>
-		</nav>
-	</header>
-	<main>
-		<Route path="keys/edit/:name" component={EditKey} />
-		<Route path="keys/add" component={AddKey} />
-		<Route path="keys" component={Keys} />
-		<Route path="sources/edit/:name" component={EditSource} />
-		<Route path="sources/add" component={AddSource} />
-		<Route path="sources" component={Sources} />
-	</main>
-</Router>
+<Router bind:component bind:params bind:query bind:title />
+
+<LockStoresAfterVisibilityLoss />
+
+<svelte:head>
+	<title>{title}</title>
+</svelte:head>
+
+<header>
+	<nav>
+		<Link to={listSources} />
+		<Link to={listKeys} />
+	</nav>
+	<h1>{title}</h1>
+</header>
+
+<main>
+	<svelte:component this={component} {...params} {query} />
+</main>
 
 <style>
-	header nav {
+	nav {
 		display: flex;
-		justify-content: space-evenly;
+		gap: var(--gap);
 	}
 </style>
