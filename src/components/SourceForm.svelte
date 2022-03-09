@@ -1,5 +1,5 @@
 <script>
-	import * as sourceTypes from "@/lib/sources";
+  import * as sourceForms from "@/components/sources/forms";
 	import keys from "@/local/keys";
 
 	export let key;
@@ -18,5 +18,5 @@
 </label>
 
 {#if type}
-	<svelte:component this={sourceTypes[type].form} {...options} />
+	<svelte:component this={sourceForms[type]} {...options} />
 {/if}

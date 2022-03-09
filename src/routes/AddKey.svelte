@@ -27,6 +27,6 @@
 			<input name="name" placeholder="required, must be unique" autocomplete="off" required />
 		</label>
 		<KeyForm />
-		<input type="submit" value="Save" />
 	</fieldset>
+	<input type="submit" value="Save" />
 </form>

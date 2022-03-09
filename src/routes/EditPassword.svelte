@@ -29,8 +29,8 @@
 	});
 
 	async function onSubmit(event) {
-		const { text } = formToObject(event.target);
-		await $stores[source].edit(name, text);
+		const data = formToObject(event.target);
+		await $stores[source].edit(name, data);
 		navigate(viewPassword, { query: { source, name } });
 	}
 </script>
@@ -39,11 +39,15 @@
 	<PassphraseProtected {key}>
 		{#await $stores[source].get(name)}
 			<p>Fetching and decrypting content...</p>
-		{:then text}
+		{:then { password, extra }}
 			<form on:submit|preventDefault={onSubmit}>
 				<label>
-					Decrypted content
-					<textarea name="text" value={text} rows="5" />
+					Password
+					<input name="password" value={password} required />
+				</label>
+				<label>
+					Extra
+					<textarea name="extra" value={extra} rows="5" />
 				</label>
 				<input type="submit" value="Save" />
 			</form>
@@ -52,6 +56,8 @@
 		{/await}
 	</PassphraseProtected>
 
-	<h2>Last Updated</h2>
-	<PasswordLastUpdated {source} {name} />
+	<section id="updated">
+		<h2>Last Updated</h2>
+		<PasswordLastUpdated {source} {name} />
+	</section>
 </EnsurePassword>

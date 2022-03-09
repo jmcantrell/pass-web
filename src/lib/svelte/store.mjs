@@ -12,9 +12,20 @@ export function createLocalStorageStore(name, defaultValue = null) {
 	const store = writable(initial ? JSON.parse(initial) : defaultValue);
 
 	store.subscribe((value) => {
-		console.debug(`${name} created`);
+		console.debug(`saving ${name}`);
 		localStorage.setItem(name, JSON.stringify(value));
 	});
+
+	return store;
+}
+
+export function createSettingStore(name, defaultValue = null) {
+	const defaultValueSerialized = JSON.stringify(defaultValue);
+	const store = createLocalStorageStore(`settings.${name}`, defaultValue);
+
+	store.reset = () => {
+		store.set(JSON.parse(defaultValueSerialized));
+	};
 
 	return store;
 }

@@ -46,11 +46,13 @@
 		<fieldset>
 			<legend>{sourceTypes[type].name} Source Options</legend>
 			<SourceForm {type} key={$sources[name].key} options={$sources[name].options} />
-			<input type="submit" value="Save" />
-			<input type="button" value="Remove" on:click={onRemoveButtonClick} />
 		</fieldset>
+		<input type="submit" value="Save" />
+		<input type="button" value="Remove" on:click={onRemoveButtonClick} />
 	</form>
 
-	<h2>Last Updated</h2>
-	{new Date($sources[name].updated)}
+	<section id="updated">
+		<h2>Last Updated</h2>
+		{new Date($sources[name].updated)}
+	</section>
 </EnsureSource>

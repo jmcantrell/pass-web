@@ -13,15 +13,19 @@
 </script>
 
 {#if sourceNames.length > 0}
-	<h2>View Passwords</h2>
-	<ul>
-		{#each sourceNames as source}
-			<li><Link to={listPasswords} query={{ source }}>{source}</Link></li>
-		{/each}
-	</ul>
+	<section id="list">
+		<h2>View Passwords</h2>
+		<ul>
+			{#each sourceNames as source}
+				<li><Link to={listPasswords} query={{ source }}>{source}</Link></li>
+			{/each}
+		</ul>
+	</section>
 {/if}
 
-<h2>Actions</h2>
-<ul>
-	<li><Link to={addSource}>Add a new store</Link></li>
-</ul>
+<section id="actions">
+	<h2>Actions</h2>
+	<ul>
+		<li><Link to={addSource}>Add a new store</Link></li>
+	</ul>
+</section>

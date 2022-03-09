@@ -2,6 +2,8 @@
 	import Link from "@/components/Link";
 	import Router from "@/components/Router";
 	import LockStoresAfterVisibilityLoss from "@/components/LockStoresAfterVisibilityLoss";
+	import * as home from "@/routes/Home";
+	import * as settings from "@/routes/Settings";
 	import * as listKeys from "@/routes/ListKeys";
 	import * as listSources from "@/routes/ListSources";
 
@@ -18,8 +20,10 @@
 
 <header>
 	<nav>
+		<Link to={home}>Home</Link>
 		<Link to={listSources} />
 		<Link to={listKeys} />
+		<Link to={settings} />
 	</nav>
 	<h1>{title}</h1>
 </header>
@@ -29,8 +33,12 @@
 </main>
 
 <style>
-	nav {
+	nav, main {
 		display: flex;
-		gap: var(--gap);
+		gap: var(--s0);
 	}
+
+  main {
+    flex-direction: column;
+  }
 </style>

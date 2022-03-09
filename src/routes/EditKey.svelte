@@ -49,20 +49,24 @@
 		<fieldset>
 			<legend>Key Options</legend>
 			<KeyForm {...$keys[key].options} />
-			<input type="submit" value="Save" />
-			<input type="button" value="Remove" on:click={onRemoveButtonClick} />
 		</fieldset>
+		<input type="submit" value="Save" />
+		<input type="button" value="Remove" on:click={onRemoveButtonClick} />
 	</form>
 
-	<h2>Last Updated</h2>
-	{new Date($keys[key].updated)}
+	<section id="updated">
+		<h2>Last Updated</h2>
+		{new Date($keys[key].updated)}
+	</section>
 
 	{#if sourcesUsingKey.length > 0}
-		<h2>Sources Using this Key</h2>
-		<ul>
-			{#each sourcesUsingKey as name}
-				<li><Link to={editSource} query={{ name }}>{name}</Link></li>
-			{/each}
-		</ul>
+		<section id="dependencies">
+			<h2>Sources Using this Key</h2>
+			<ul>
+				{#each sourcesUsingKey as name}
+					<li><Link to={editSource} query={{ name }}>{name}</Link></li>
+				{/each}
+			</ul>
+		</section>
 	{/if}
 </EnsureKey>

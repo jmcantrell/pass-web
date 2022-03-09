@@ -40,11 +40,16 @@
 <EnsurePassword {source} {name}>
 	<PassphraseProtected {key}>
 		<form on:submit|preventDefault={onSubmit}>
-			<GeneratePassword />
+			<fieldset>
+				<legend>Password Generation Options</legend>
+				<GeneratePassword />
+			</fieldset>
 			<input type="submit" value="Regenerate" />
 		</form>
 	</PassphraseProtected>
 
-	<h2>Last Updated</h2>
-	<PasswordLastUpdated {source} {name} />
+	<section id="updated">
+		<h2>Last Updated</h2>
+		<PasswordLastUpdated {source} {name} />
+	</section>
 </EnsurePassword>

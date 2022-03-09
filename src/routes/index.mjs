@@ -1,31 +1,31 @@
+import * as home from "./Home";
+import * as settings from "./Settings";
 import * as addKey from "./AddKey";
 import * as editKey from "./EditKey";
 import * as listKeys from "./ListKeys";
 import * as addSource from "./AddSource";
 import * as editSource from "./EditSource";
 import * as listSources from "./ListSources";
-import * as generatePassword from "./GeneratePassword";
-import * as listPasswords from "./ListPasswords";
-import * as editPassword from "./EditPassword";
 import * as viewPassword from "./ViewPassword";
+import * as editPassword from "./EditPassword";
+import * as listPasswords from "./ListPasswords";
+import * as generatePassword from "./GeneratePassword";
 import * as regeneratePassword from "./RegeneratePassword";
-import * as welcome from "./Welcome";
-import * as home from "./Home";
 import * as notFound from "./NotFound";
 
-export default {
+export default [
+	home,
+	settings,
 	addKey,
 	editKey,
 	listKeys,
 	addSource,
 	editSource,
 	listSources,
-	generatePassword,
-	listPasswords,
-	editPassword,
 	viewPassword,
+	editPassword,
+	listPasswords,
+	generatePassword,
 	regeneratePassword,
-	welcome,
-	home,
 	notFound
-};
+];

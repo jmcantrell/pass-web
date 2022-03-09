@@ -26,24 +26,28 @@
 </script>
 
 <EnsureSource name={source}>
-	{#await $stores[source].list()}
-		<p>Loading passwords...</p>
-	{:then names}
-		{#if names.length > 0}
-			<h2>View Password</h2>
-			<ul>
-				{#each names as name}
-					<li><Link to={viewPassword} query={{ source, name }}>{name}</Link></li>
-				{/each}
-			</ul>
-		{/if}
-	{:catch error}
-		<ErrorList items={[error]} />
-	{/await}
+	<section id="list">
+		{#await $stores[source].list()}
+			<p>Loading passwords...</p>
+		{:then names}
+			{#if names.length > 0}
+				<h2>View Password</h2>
+				<ul>
+					{#each names as name}
+						<li><Link to={viewPassword} query={{ source, name }}>{name}</Link></li>
+					{/each}
+				</ul>
+			{/if}
+		{:catch error}
+			<ErrorList items={[error]} />
+		{/await}
+	</section>
 
-	<h2>Actions</h2>
-	<ul>
-		<li><Link to={generatePassword} query={{ source }}>Generate a new password</Link></li>
-		<li><Link to={editSource} query={{ name: source }}>Edit source settings</Link></li>
-	</ul>
+	<section id="actions">
+		<h2>Actions</h2>
+		<ul>
+			<li><Link to={generatePassword} query={{ source }}>Generate a new password</Link></li>
+			<li><Link to={editSource} query={{ name: source }}>Edit source settings</Link></li>
+		</ul>
+	</section>
 </EnsureSource>

@@ -12,6 +12,6 @@ export default ensureSubscriber(
 		);
 	}),
 	() => {
-		console.debug("cryptors created");
+		console.debug("derived cryptors");
 	}
 );

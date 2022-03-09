@@ -1,16 +1,38 @@
 <script>
 	import { onMount } from "svelte";
 	import stores from "@/local/stores";
-	import settings from "@/local/settings";
+	import setting from "@/local/settings/lockStoresAfterVisibilityLoss";
 
-	let timeout;
+	let timeoutHandle;
+
+	setting.subscribe(($setting) => {
+		stopTimeout();
+		if ($setting.enabled) {
+			addVisibilityListener();
+		} else {
+			removeVisibilityListener();
+		}
+	});
 
 	onMount(() => {
-		document.addEventListener("visibilitychange", onVisibilityChange);
+		addVisibilityListener();
 		return () => {
-			document.removeEventListener("visibilitychange", onVisibilityChange);
+			stopTimeout();
+			removeVisibilityListener();
 		};
 	});
+
+	function addVisibilityListener() {
+		document.addEventListener("visibilitychange", onVisibilityChange);
+	}
+
+	function removeVisibilityListener() {
+		document.removeEventListener("visibilitychange", onVisibilityChange);
+	}
+
+	function stopTimeout() {
+		clearTimeout(timeoutHandle);
+	}
 
 	function lockAllStores() {
 		for (const store of Object.values($stores)) {
@@ -19,13 +41,10 @@
 	}
 
 	function onVisibilityChange() {
-		switch (document.visibilityState) {
-			case "hidden":
-				timeout = setTimeout(lockAllStores, $settings.secondsUntilLockAfterVisibilityLoss * 1000);
-				break;
-			case "visible":
-				clearTimeout(timeout);
-				break;
+		if (document.visibilityState == "hidden") {
+			timeoutHandle = setTimeout(lockAllStores, $setting.timeout * 1000);
+		} else {
+			stopTimeout();
 		}
 	}
 </script>

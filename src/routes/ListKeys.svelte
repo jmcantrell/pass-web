@@ -13,15 +13,19 @@
 </script>
 
 {#if keyNames.length > 0}
-	<h2>Edit Key</h2>
-	<ul>
-		{#each keyNames as name}
-			<li><Link to={editKey} query={{ name }}>{name}</Link></li>
-		{/each}
-	</ul>
+	<section id="list">
+		<h2>Edit Key</h2>
+		<ul>
+			{#each keyNames as name}
+				<li><Link to={editKey} query={{ name }}>{name}</Link></li>
+			{/each}
+		</ul>
+	</section>
 {/if}
 
-<h2>Actions</h2>
-<ul>
-	<li><Link to={addKey}>Add a new key</Link></li>
-</ul>
+<section id="actions">
+	<h2>Actions</h2>
+	<ul>
+		<li><Link to={addKey}>Add a new key</Link></li>
+	</ul>
+</section>

@@ -38,7 +38,7 @@
 				Passphrase
 				<input type="password" name="passphrase" on:input={onPassphraseInput} required />
 			</label>
-			<input type="submit" value="Submit" />
 		</fieldset>
+		<input type="submit" value="Submit" />
 	</form>
 {/if}

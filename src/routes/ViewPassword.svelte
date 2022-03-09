@@ -30,9 +30,8 @@
 
 	async function onCopyButtonClick() {
 		const store = $stores[source];
-		const content = await store.get(name);
-		const lines = content.split("\n");
-		await copy(lines[0]);
+		const { password } = await store.get(name);
+		await copy(password);
 	}
 </script>
 
@@ -40,13 +39,17 @@
 	<PassphraseProtected {key}>
 		<button on:click={onCopyButtonClick}>Copy password to clipboard</button>
 
-		<h2>Actions</h2>
-		<ul>
-			<li><Link to={editPassword} query={{ source, name }}>Decrypt and edit content</Link></li>
-			<li><Link to={regeneratePassword} query={{ source, name }}>Regenerate password</Link></li>
-		</ul>
+		<section id="actions">
+			<h2>Actions</h2>
+			<ul>
+				<li><Link to={editPassword} query={{ source, name }}>Decrypt and edit content</Link></li>
+				<li><Link to={regeneratePassword} query={{ source, name }}>Regenerate password</Link></li>
+			</ul>
+		</section>
 	</PassphraseProtected>
 
-	<h2>Last Updated</h2>
-	<PasswordLastUpdated {source} {name} />
+	<section id="updated">
+		<h2>Last Updated</h2>
+		<PasswordLastUpdated {source} {name} />
+	</section>
 </EnsurePassword>

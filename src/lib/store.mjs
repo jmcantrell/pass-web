@@ -1,13 +1,21 @@
 import { generate as generatePassword } from "@/lib/password";
 
 const extension = ".gpg";
+const newline = "\n";
 
-function normalizeText(text) {
-	return text.trim() + "\n";
+function serializeContent(data) {
+	const password = data.password || "";
+	const extra = (data.extra || "").split(newline);
+	const lines = [password, ...extra];
+	const text = lines.join(newline);
+	return text.trim() + newline;
 }
 
-function joinLines(lines) {
-	return normalizeText(lines.join("\n"));
+function deserializeContent(text) {
+	const lines = text.trim().split(newline);
+	const password = lines[0];
+	const extra = lines.slice(1);
+	return { password, extra };
 }
 
 export default function ({ api, cryptor }) {
@@ -22,22 +30,23 @@ export default function ({ api, cryptor }) {
 	}
 
 	async function get(name) {
-		const content = await api.get(name + extension);
-		const text = await cryptor.decrypt(content);
-		return normalizeText(text);
+		const armoredMessage = await api.get(name + extension);
+		const content = await cryptor.decrypt(armoredMessage);
+		return deserializeContent(content);
 	}
 
-	async function set(name, text, message, update = false) {
-		const armoredMessage = await cryptor.encrypt(normalizeText(text));
+	async function set(name, data, message, update = false) {
+		const content = serializeContent(data);
+		const armoredMessage = await cryptor.encrypt(content);
 		await api.set(name + extension, armoredMessage, message, update);
 	}
 
-	async function add(name, text) {
-		await set(name, text, `Add password for ${name} using web interface.`);
+	async function add(name, data) {
+		await set(name, data, `Add password for ${name} using web interface.`);
 	}
 
-	async function edit(name, text) {
-		await set(name, text, `Edit password for ${name} using web interface.`, true);
+	async function edit(name, data) {
+		await set(name, data, `Edit password for ${name} using web interface.`, true);
 	}
 
 	async function updated(name) {
@@ -45,16 +54,16 @@ export default function ({ api, cryptor }) {
 	}
 
 	async function generate(name, length, options) {
-		const lines = [generatePassword(length, options)];
+		const data = { password: generatePassword(length, options) };
 		const message = `Generate password for ${name} using web interface.`;
-		await set(name, joinLines(lines), message);
+		await set(name, data, message);
 	}
 
 	async function regenerate(name, length, options) {
-		let lines = (await get(name)).split("\n");
-		lines[0] = generatePassword(length, options);
+		const data = await get(name);
+		data.password = generatePassword(length, options);
 		const message = `Regenerate password for ${name} using web interface.`;
-		await set(name, joinLines(lines), message, true);
+		await set(name, data, message, true);
 	}
 
 	return {

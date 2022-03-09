@@ -1,7 +1,7 @@
 import { derived } from "svelte/store";
 import { ensureSubscriber } from "@/lib/svelte/store";
 import createStore from "@/lib/store";
-import * as sourceTypes from "@/lib/sources";
+import * as sourceAPIs from "@/lib/sources/apis";
 import sources from "@/local/sources";
 import cryptors from "@/local/cryptors";
 
@@ -10,12 +10,12 @@ export default ensureSubscriber(
 		return Object.fromEntries(
 			Object.entries($sources).map(([name, { type, key, options }]) => {
 				const cryptor = $cryptors[key];
-				const api = sourceTypes[type].createAPI(options);
+				const api = sourceAPIs[type](options);
 				return [name, createStore({ api, cryptor })];
 			})
 		);
 	}),
 	() => {
-		console.debug("stores created");
+		console.debug("derived stores");
 	}
 );

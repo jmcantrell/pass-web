@@ -38,14 +38,16 @@
 				<input name="name" placeholder="required, must be unique" autocomplete="off" required />
 			</label>
 			<SourceForm {type} />
-			<input type="submit" value="Save" />
 		</fieldset>
+		<input type="submit" value="Save" />
 	</form>
 {:else}
-	<h2>Select Source Type</h2>
-	<ul>
-		{#each Object.entries(sourceTypes) as [id, { name }] (id)}
-			<li><a href="?type={id}">{name}</a></li>
-		{/each}
-	</ul>
+	<section id="source-types">
+		<h2>Select Source Type</h2>
+		<ul>
+			{#each Object.entries(sourceTypes) as [id, { name }] (id)}
+				<li><a href="?type={id}">{name}</a></li>
+			{/each}
+		</ul>
+	</section>
 {/if}

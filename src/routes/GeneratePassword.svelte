@@ -34,11 +34,14 @@
 
 <EnsureSource name={source}>
 	<form on:submit|preventDefault={onSubmit}>
-		<label>
-			Name
-			<input name="name" maxlength="256" required />
-		</label>
-		<GeneratePassword />
+		<fieldset>
+			<legend>Password Generation Options</legend>
+			<label>
+				Name
+				<input name="name" maxlength="256" required />
+			</label>
+			<GeneratePassword />
+		</fieldset>
 		<input type="submit" value="Generate" />
 	</form>
 </EnsureSource>
