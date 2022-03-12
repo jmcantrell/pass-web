@@ -1,4 +1,5 @@
 <script>
+	import Loading from "@/components/Loading";
 	import ErrorList from "@/components/ErrorList";
 	import stores from "@/local/stores";
 
@@ -6,7 +7,7 @@
 </script>
 
 {#await $stores[source].updated(name)}
-	Loading password details...
+	<Loading name="password details" />
 {:then date}
 	{date}
 {:catch error}

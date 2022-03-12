@@ -1,4 +1,5 @@
 import { writable } from "svelte/store";
+import { debug } from "@/lib/logging";
 
 const noop = () => {};
 
@@ -12,7 +13,7 @@ export function createLocalStorageStore(name, defaultValue = null) {
 	const store = writable(initial ? JSON.parse(initial) : defaultValue);
 
 	store.subscribe((value) => {
-		console.debug(`saving ${name}`);
+		debug(`saving ${name} to local storage`);
 		localStorage.setItem(name, JSON.stringify(value));
 	});
 

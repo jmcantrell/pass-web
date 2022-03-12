@@ -1,10 +1,10 @@
 <script context="module">
-	export const title = "Default password generator options";
+	export const title = "Default Password Generator Options";
 </script>
 
 <script>
-	import PasswordGenerationForm from "@/components/PasswordGenerationForm";
+	import PasswordGenerationFields from "@/components/PasswordGenerationFields";
 	import setting from "@/local/settings/defaultPasswordGeneratorOptions";
 </script>
 
-<PasswordGenerationForm bind:length={$setting.length} bind:classes={$setting.classes} />
+<PasswordGenerationFields bind:length={$setting.length} bind:classes={$setting.classes} />

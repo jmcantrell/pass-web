@@ -1,7 +1,7 @@
 import { FetchError } from "@/lib/error";
 
-const url = "https://api.github.com";
-const version = "v3";
+export const url = "https://api.github.com";
+export const version = "v3";
 
 export default function ({ repo, branch, token = null }) {
 	async function request(path, payload = {}) {
@@ -67,6 +67,14 @@ export default function ({ repo, branch, token = null }) {
 		await requestPath(path, { method: "PUT", body });
 	}
 
+	async function remove(path, message) {
+		const body = {
+			message,
+			sha: await requestPathSHA(path)
+		};
+		await requestPath(path, { method: "DELETE", body });
+	}
+
 	async function updated(path) {
 		const commits = await request(`repos/${repo}/commits?path=${path}&per_page=1&page=1`);
 		return new Date(commits[0].commit.committer.date);
@@ -77,6 +85,7 @@ export default function ({ repo, branch, token = null }) {
 		has,
 		get,
 		set,
+		remove,
 		updated
 	};
 }

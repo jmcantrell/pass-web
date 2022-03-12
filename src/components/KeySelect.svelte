@@ -1,14 +1,13 @@
 <script>
-  import * as sourceForms from "@/components/sources/forms";
+	import Link from "@/components/Link";
+	import { path as addKey } from "@/routes/AddKey";
 	import keys from "@/local/keys";
 
 	export let key;
-	export let type = null;
-	export let options = {};
 </script>
 
 <label>
-	Key
+	Cryptography Key
 	<select name="key" bind:value={key} required>
 		<option />
 		{#each Object.keys($keys) as name}
@@ -17,6 +16,8 @@
 	</select>
 </label>
 
-{#if type}
-	<svelte:component this={sourceForms[type]} {...options} />
+{#if Object.keys($keys).length == 0}
+	<div>
+	  You'll need to <Link path={addKey}>add a key</Link> before this store can be added.
+	</div>
 {/if}

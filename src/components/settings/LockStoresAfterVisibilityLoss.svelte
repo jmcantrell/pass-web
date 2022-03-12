@@ -1,5 +1,5 @@
 <script context="module">
-	export const title = "Lock stores after visibility loss";
+	export const title = "Lock Stores after Visibility Loss";
 </script>
 
 <script>
@@ -12,6 +12,6 @@
 </label>
 
 <label>
-	Seconds to wait before locking
+	Seconds to Wait Before Locking
 	<input type="number" min="0" max={60 * 60 * 24} size="0" bind:value={$setting.timeout} />
 </label>

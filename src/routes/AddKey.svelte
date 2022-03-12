@@ -1,32 +1,48 @@
 <script context="module">
 	export const path = "keys/add";
-	export const title = "Add Key";
 </script>
 
 <script>
 	import { redirect } from "@/lib/routing";
-	import { formToObject } from "@/lib/form";
-	import KeyForm from "@/components/KeyForm";
-	import * as editKey from "@/routes/EditKey";
+	import { formToObject, setValidity, clearValidity } from "@/lib/form";
+	import KeyFieldsets from "@/components/KeyFieldsets";
+	import { path as editKey } from "@/routes/EditKey";
 	import keys from "@/local/keys";
 
+	const title = "Add Cryptography Key";
+
 	function onSubmit(event) {
-		const { name, ...options } = formToObject(event.target);
-		if (!$keys[name] || confirm("Overwrite existing key?")) {
-			$keys[name] = { options, updated: new Date() };
-			redirect(editKey, { query: { name } });
+		const form = event.target;
+		const { name, ...options } = formToObject(form);
+
+		if ($keys[name]) {
+			setValidity(form, "name", "A key with that name already exists.");
+			return;
 		}
+
+		$keys[name] = { options, updated: new Date() };
+		redirect(editKey, { query: { name } });
 	}
 </script>
 
+<h1>{title}</h1>
+
 <form on:submit|preventDefault={onSubmit}>
 	<fieldset>
-		<legend>Key Options</legend>
+		<legend>How would you like to refer to this key?</legend>
 		<label>
-			Name
-			<input name="name" placeholder="required, must be unique" autocomplete="off" required />
+			Key Name
+			<input
+				required
+				name="name"
+				autocomplete="off"
+				placeholder="required, must be unique"
+				on:input={clearValidity}
+			/>
 		</label>
-		<KeyForm />
 	</fieldset>
-	<input type="submit" value="Save" />
+
+	<KeyFieldsets />
+
+	<input type="submit" value="Add Key" />
 </form>

@@ -5,20 +5,22 @@
 <label>
 	Repository
 	<input
+		required
 		name="repo"
 		bind:value={repo}
 		placeholder="required, example: user/password-store"
-		required
+		on:input
 	/>
 </label>
 
 <label>
 	Branch
 	<input
+		required
 		name="branch"
 		bind:value={branch}
 		placeholder="required, example: main or master"
-		required
+		on:input
 	/>
 </label>
 
@@ -26,14 +28,13 @@
 	Access Token
 	<input
 		name="token"
-		bind:value={token}
 		type="password"
-		placeholder="required for private repos"
+		bind:value={token}
 		autocomplete="new-password"
+		placeholder="required for private repos"
+		on:input
 	/>
-	<small>
-		<a target="_blank" href="https://github.com/settings/tokens/new"
-			>Generate a personal access token</a
-		>
-	</small>
+	<a target="_blank" href="https://github.com/settings/tokens/new">
+		Generate a Personal Access Token
+	</a>
 </label>

@@ -1,11 +1,12 @@
 const fs = require("fs");
 const path = require("path");
-const { DefinePlugin } = require("webpack");
+const { DefinePlugin, EnvironmentPlugin } = require("webpack");
 const HtmlPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin: CleanPlugin } = require("clean-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const CssPlugin = require("mini-css-extract-plugin");
 const svelteConfig = require("./svelte.config.js");
+const packageConfig = require("./package.json");
 
 const mode = process.env.NODE_ENV || "development";
 const baseUrl = process.env.BASE_URL || "/";
@@ -44,7 +45,12 @@ const config = {
 			]
 		}),
 		new DefinePlugin({
-			"process.env.BASE_URL": JSON.stringify(baseUrl)
+			"process.env.BASE_URL": JSON.stringify(baseUrl),
+			...Object.fromEntries(
+				["name", "version", "homepage", "bugs"].map((key) => {
+					return [`process.env.PACKAGE_${key.toUpperCase()}`, JSON.stringify(packageConfig[key])];
+				})
+			)
 		})
 	],
 

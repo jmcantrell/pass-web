@@ -1,44 +1,41 @@
 <script>
+	import { onMount } from "svelte";
+	import { name, version } from "@/lib/app";
+	import { info } from "@/lib/logging";
 	import Link from "@/components/Link";
 	import Router from "@/components/Router";
 	import LockStoresAfterVisibilityLoss from "@/components/LockStoresAfterVisibilityLoss";
-	import * as home from "@/routes/Home";
-	import * as settings from "@/routes/Settings";
-	import * as listKeys from "@/routes/ListKeys";
-	import * as listSources from "@/routes/ListSources";
+	import { path as home } from "@/routes/Home";
+	import { path as listStores } from "@/routes/ListStores";
+	import { path as listKeys } from "@/routes/ListKeys";
+	import { path as settings } from "@/routes/Settings";
+	import { path as data } from "@/routes/Data";
 
-	let component, params, query, title;
+	let component, params, query;
+
+	onMount(() => {
+		info(`v${version} mounted`);
+	});
 </script>
 
-<Router bind:component bind:params bind:query bind:title />
+<svelte:head>
+	<title>{name}</title>
+</svelte:head>
+
+<Router bind:component bind:params bind:query />
 
 <LockStoresAfterVisibilityLoss />
 
-<svelte:head>
-	<title>{title}</title>
-</svelte:head>
-
 <header>
-	<nav>
-		<Link to={home}>Home</Link>
-		<Link to={listSources} />
-		<Link to={listKeys} />
-		<Link to={settings} />
+	<nav id="menu">
+		<Link path={home}>Home</Link>
+		<Link path={listStores}>Password Stores</Link>
+		<Link path={listKeys}>Cryptography Keys</Link>
+		<Link path={settings}>Settings</Link>
+		<Link path={data}>Data</Link>
 	</nav>
-	<h1>{title}</h1>
 </header>
 
 <main>
 	<svelte:component this={component} {...params} {query} />
 </main>
-
-<style>
-	nav, main {
-		display: flex;
-		gap: var(--s0);
-	}
-
-  main {
-    flex-direction: column;
-  }
-</style>

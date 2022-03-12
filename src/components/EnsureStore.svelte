@@ -9,8 +9,8 @@
 	{#if name in $sources}
 		<slot />
 	{:else}
-		<NotFound name="Source" value={name} />
+		<NotFound name="Store" value={name} />
 	{/if}
 {:else}
-	<NotFound name="Source" />
+	<NotFound name="Store" />
 {/if}

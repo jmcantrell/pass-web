@@ -1,11 +1,12 @@
 <script context="module">
 	export const path = "settings";
-	export const title = "Settings";
 </script>
 
 <script>
 	import components from "@/components/settings";
 	import * as stores from "@/local/settings";
+
+	const title = "Settings";
 
 	function onResetButtonClick() {
 		if (confirm("Reset all settings to default values?")) {
@@ -16,6 +17,8 @@
 	}
 </script>
 
+<h1>{title}</h1>
+
 {#each components as { title, default: component } (title)}
 	<fieldset class="setting">
 		<legend>{title}</legend>
@@ -23,4 +26,4 @@
 	</fieldset>
 {/each}
 
-<button on:click={onResetButtonClick}>Reset all settings to default values</button>
+<button on:click={onResetButtonClick}>Reset Settings to Default</button>

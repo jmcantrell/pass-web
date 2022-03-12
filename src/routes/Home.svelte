@@ -1,78 +1,70 @@
 <script context="module">
 	export const path = "";
-	export const title = "Welcome!";
 </script>
 
 <script>
-	import * as sourceTypes from "@/lib/sources";
+	import { name, homepage, bugs } from "@/lib/app";
+	import * as hosts from "@/lib/hosts";
 	import Link from "@/components/Link";
-	import * as addKey from "@/routes/AddKey";
-	import * as addSource from "@/routes/AddSource";
+	import { path as addKey } from "@/routes/AddKey";
+	import { path as addStore } from "@/routes/AddStore";
 	import keys from "@/local/keys";
-	import sources from "@/local/sources";
+	import stores from "@/local/stores";
 
 	$: hasKey = Object.keys($keys).length > 0;
-	$: hasSource = Object.keys($sources).length > 0;
-	$: ready = hasKey && hasSource;
-	$: sourceNames = Object.values(sourceTypes).map(({ name }) => name);
-	$: exampleSources = sourceNames.slice(0, 2).join(" or ");
+	$: hasStore = Object.keys($stores).length > 0;
+	$: ready = hasKey && hasStore;
+	$: hostNames = Object.values(hosts).map(({ name }) => name);
+	$: exampleHosts = hostNames.slice(0, 2).join(" or ");
 </script>
+
+<h1>Welcome to {name}!</h1>
 
 <section id="intro">
 	<h2>Introduction</h2>
 	<p>
 		This application provides a way to access your hosted
-		<a target="_blank" href="https://www.passwordstore.org/">password stores</a> via a web browser. This
-		is primarily useful for devices that do not have access to a unix shell (in my case, an iPhone and
-		iPad).
+		<a target="_blank" href="https://www.passwordstore.org/">password stores</a> remotely via a web browser.
+		This is primarily useful for devices that do not have access to a unix shell (in my case, an iPhone
+		and iPad).
 	</p>
 </section>
-
-{#if !ready}
-	<section id="get-started">
-		<h2>Get Started</h2>
-		<p>Before the application can be used, you'll need to do a little bit of configuration.</p>
-		<p>Take note of the following security precautions, then follow the required steps.</p>
-	</section>
-{/if}
 
 <section id="security-precautions">
 	<h2>Security Precautions</h2>
 	<p>
-		This application deals primarily with, what most would consider, highly sensitive information,
-		namely authentication credentials. I would be surprised if you weren't, at least, a little
-		concerned.
+		This application deals with highly sensitive information, namely your authentication
+		credentials. You <strong>should</strong> be concerned about how this application handles that information.
 	</p>
 
+	<p>Every attempt is made to handle your information as securely as possible:</p>
+
 	<ul>
-		<li>There is no back end server, so there's no phoning home.</li>
-		<li>
-			All configuration (including, but not limited to application settings, cryptography keys, and
-			password store information) is only kept locally.
-		</li>
-		<li>The only remote communication is to the password store hosts (e.g. {exampleSources}).</li>
+		<li>All application data is stored locally.</li>
+		<li>The only remote communication is to the password store hosts (e.g. {exampleHosts}).</li>
 		<li>No unencrypted data is kept or transmitted.</li>
+		<li>Password stores stay unlocked for, at most, the lifetime of application session.</li>
 		<li>
-			Password stores only stay unlocked for, at most, the lifetime of application session and are
-			automatically locked when the application's visibility is lost.
+			By default, password stores are automatically locked when the application loses visibility.
 		</li>
 	</ul>
 
 	<p>
 		Feel free to inspect the
-		<a target="_blank" href="https://github.com/jmcantrell/pass-web">source code</a>. I welcome any
-		input you might have. You can even host a copy of it on your own server, if you're so inclined.
+		<a target="_blank" href={homepage}>source code</a>. I welcome any input you might have. You can
+		even host a copy of it on your own server, if you're so inclined.
 	</p>
 </section>
 
 <section id="steps">
 	<h2>Initial Steps</h2>
+	<p>Before the application can be used, you'll need to do a little bit of configuration.</p>
 	<ol>
 		<li>
 			{#if hasKey}
 				Added a cryptography key ✔️
 			{:else}
-				<Link to={addKey}>Add a cryptography key</Link>
+				<Link path={addKey}>Add a cryptography key</Link>
 			{/if}
 			<p>
 				In order to encrypt and decrypt information in a password store, the application needs
@@ -80,10 +72,10 @@
 			</p>
 		</li>
 		<li>
-			{#if hasSource}
+			{#if hasStore}
 				Added a password store ✔️
 			{:else}
-				<Link to={addSource}>Add a password store</Link>
+				<Link path={addStore}>Add a password store</Link>
 			{/if}
 			<p>
 				Password stores must be hosted using one of the supported providers. The application will
@@ -100,3 +92,11 @@
 		<p>You've completed the necessary steps and the application is ready to use.</p>
 	</section>
 {/if}
+
+<section id="issues">
+	<h2>Problems?</h2>
+	<p>
+		If you encounter any issues using this application or just have a suggestion,
+		<a target="_blank" href={bugs}>open an issue</a>.
+	</p>
+</section>

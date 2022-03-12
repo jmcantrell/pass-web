@@ -1,28 +1,24 @@
 <script context="module">
 	export const path = "sources/edit";
-
-	export function title({ query }) {
-		return `Edit Source: ${query.get("name")}`;
-	}
 </script>
 
 <script>
 	import { onMount } from "svelte";
 	import { redirect } from "@/lib/routing";
 	import { formToObject } from "@/lib/form";
-	import * as sourceTypes from "@/lib/sources";
-	import SourceForm from "@/components/SourceForm";
-	import EnsureSource from "@/components/EnsureSource";
-	import * as listSources from "@/routes/ListSources";
+	import EnsureStore from "@/components/EnsureStore";
+	import HostFieldset from "@/components/HostFieldset";
+	import { path as listStores } from "@/routes/ListStores";
 	import sources from "@/local/sources";
 
 	export let query;
 
-	let name, type;
+	let name, title;
+	let changed = false;
 
 	onMount(() => {
 		name = query.get("name");
-		type = $sources[name].type;
+		title = `Configure Password Store: ${name}`;
 	});
 
 	function onSubmit(event) {
@@ -30,29 +26,34 @@
 		$sources[name].key = key;
 		$sources[name].options = options;
 		$sources[name].updated = new Date();
+		changed = false;
 	}
 
 	function onRemoveButtonClick() {
-		if (confirm(`Remove source: ${name}?`)) {
+		if (confirm(`Remove password store: ${name}?`)) {
 			delete $sources[name];
 			$sources = $sources;
-			redirect(listSources);
+			redirect(listStores);
 		}
 	}
 </script>
 
-<EnsureSource {name}>
+<EnsureStore {name}>
+	<h1>{title}</h1>
+
 	<form on:submit|preventDefault={onSubmit}>
-		<fieldset>
-			<legend>{sourceTypes[type].name} Source Options</legend>
-			<SourceForm {type} key={$sources[name].key} options={$sources[name].options} />
-		</fieldset>
-		<input type="submit" value="Save" />
-		<input type="button" value="Remove" on:click={onRemoveButtonClick} />
+		<HostFieldset
+			id={$sources[name].host}
+			options={$sources[name].options}
+			on:input={() => (changed = true)}
+		/>
+		<input type="submit" value="Save Changes" disabled={!changed} />
 	</form>
+
+	<button on:click={onRemoveButtonClick}>Remove Store</button>
 
 	<section id="updated">
 		<h2>Last Updated</h2>
 		{new Date($sources[name].updated)}
 	</section>
-</EnsureSource>
+</EnsureStore>

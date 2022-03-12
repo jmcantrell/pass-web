@@ -1,8 +1,20 @@
 export const characterClasses = {
-	digits: { name: "digits", value: "0123456789" },
-	lower: { name: "lower-case letters", value: "abcdefghijklmnopqrstuvwxyz" },
-	upper: { name: "upper-case letters", value: "ABCDEFGHIJKLMNOPQRSTUVWXYZ" },
-	symbols: { name: "symbols", value: "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~'" }
+	digit: {
+		name: "numeric digits",
+		value: "0123456789"
+	},
+	lower: {
+		name: "lower-case letters",
+		value: "abcdefghijklmnopqrstuvwxyz"
+	},
+	upper: {
+		name: "upper-case letters",
+		value: "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	},
+	punct: {
+		name: "punctuation characters",
+		value: "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~'"
+	}
 };
 
 export function generate(length, classes = null) {

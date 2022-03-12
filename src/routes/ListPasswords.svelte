@@ -1,53 +1,51 @@
 <script context="module">
 	export const path = "passwords";
-
-	export function title({ query }) {
-		return `Passwords: ${query.get("source")}`;
-	}
 </script>
 
 <script>
 	import { onMount } from "svelte";
 	import Link from "@/components/Link";
+  import Loading from "@/components/Loading";
 	import ErrorList from "@/components/ErrorList";
-	import EnsureSource from "@/components/EnsureSource";
-	import * as editSource from "@/routes/EditSource";
-	import * as viewPassword from "@/routes/ViewPassword";
-	import * as generatePassword from "@/routes/GeneratePassword";
+	import EnsureStore from "@/components/EnsureStore";
+	import { path as editStore } from "@/routes/EditStore";
+	import { path as addPassword } from "@/routes/AddPassword";
+	import { path as editPassword } from "@/routes/EditPassword";
 	import stores from "@/local/stores";
 
 	export let query;
 
-	let source;
+	let source, title, fetchNames;
 
 	onMount(() => {
 		source = query.get("source");
+		title = `Password Store: ${source}`;
+		load();
 	});
+
+	function load() {
+		fetchNames = $stores[source].list();
+	}
 </script>
 
-<EnsureSource name={source}>
-	<section id="list">
-		{#await $stores[source].list()}
-			<p>Loading passwords...</p>
-		{:then names}
-			{#if names.length > 0}
-				<h2>View Password</h2>
-				<ul>
-					{#each names as name}
-						<li><Link to={viewPassword} query={{ source, name }}>{name}</Link></li>
-					{/each}
-				</ul>
-			{/if}
-		{:catch error}
-			<ErrorList items={[error]} />
-		{/await}
-	</section>
+<EnsureStore name={source}>
+	<h1>{title}</h1>
 
-	<section id="actions">
-		<h2>Actions</h2>
-		<ul>
-			<li><Link to={generatePassword} query={{ source }}>Generate a new password</Link></li>
-			<li><Link to={editSource} query={{ name: source }}>Edit source settings</Link></li>
+	<nav id="actions">
+		<button on:click={load}>Refresh List</button>
+		<Link path={addPassword} query={{ source }}>Add Password</Link>
+		<Link path={editStore} query={{ name: source }}>Configure Store</Link>
+	</nav>
+
+	{#await fetchNames}
+    <Loading name="passwords" />
+	{:then names}
+		<ul id="list">
+			{#each names as name}
+				<li><Link path={editPassword} query={{ source, name }}>{name}</Link></li>
+			{/each}
 		</ul>
-	</section>
-</EnsureSource>
+	{:catch error}
+		<ErrorList items={[error]} />
+	{/await}
+</EnsureStore>

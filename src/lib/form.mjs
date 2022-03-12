@@ -9,3 +9,13 @@ export function formToObject(form) {
 
 	return object;
 }
+
+export function setValidity(form, name, message) {
+	const input = form.elements[name];
+	input.setCustomValidity(message);
+	input.reportValidity();
+}
+
+export function clearValidity(event) {
+	event.target.setCustomValidity("");
+}

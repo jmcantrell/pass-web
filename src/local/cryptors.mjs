@@ -1,5 +1,6 @@
 import { derived } from "svelte/store";
 import { ensureSubscriber } from "@/lib/svelte/store";
+import { debug } from "@/lib/logging";
 import createCryptor from "@/lib/cryptor";
 import keys from "@/local/keys";
 
@@ -12,6 +13,6 @@ export default ensureSubscriber(
 		);
 	}),
 	() => {
-		console.debug("derived cryptors");
+		debug("derived cryptors");
 	}
 );

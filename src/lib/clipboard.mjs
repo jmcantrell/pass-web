@@ -12,9 +12,11 @@ function createNode(text) {
 
 function copyNode(node) {
 	const selection = getSelection();
+
 	if (selection == null) {
 		throw new Error("Unabled to get selection object");
 	}
+
 	const range = document.createRange();
 	range.selectNodeContents(node);
 	selection.addRange(range);
