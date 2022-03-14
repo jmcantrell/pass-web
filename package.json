@@ -12,7 +12,7 @@
 	"license": "GPL",
 	"private": true,
 	"scripts": {
-		"start": "webpack-dev-server",
+		"dev": "webpack-dev-server",
 		"build": "webpack",
 		"test": "jest",
 		"lint": "eslint ./src",
