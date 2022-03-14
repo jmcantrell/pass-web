@@ -1,9 +1,4 @@
 import { createSettingStore } from "@/lib/svelte/store";
-import { characterClasses } from "@/lib/password";
+import { key, defaults } from "@/lib/settings/defaultPasswordGeneratorOptions";
 
-export const defaults = {
-	length: 16,
-	classes: Object.keys(characterClasses)
-};
-
-export default createSettingStore("defaultPasswordGeneratorOptions", defaults);
+export default createSettingStore(key, defaults);

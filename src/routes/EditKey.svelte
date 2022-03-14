@@ -9,7 +9,7 @@
 	import Link from "@/components/Link";
 	import EnsureKey from "@/components/EnsureKey";
 	import KeyFieldsets from "@/components/KeyFieldsets";
-	import { path as listKeys } from "@/routes/ListKeys";
+	import { path as settings } from "@/routes/Settings";
 	import { path as editStore } from "@/routes/EditStore";
 	import keys from "@/local/keys";
 	import sources from "@/local/sources";
@@ -40,7 +40,7 @@
 		if (confirm(`Remove cryptography key: ${key}?`)) {
 			delete $keys[key];
 			$keys = $keys;
-			redirect(listKeys);
+			redirect(settings);
 		}
 	}
 </script>

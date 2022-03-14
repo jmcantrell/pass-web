@@ -44,10 +44,23 @@ main,
 form,
 fieldset,
 label,
+details div,
 .column {
 	display: flex;
 	flex-direction: column;
 	gap: var(--s0);
+}
+
+details.box {
+  border: 1px solid;
+}
+
+details {
+  padding: var(--s-1);
+}
+
+details > div {
+  margin-block-start: var(--s0);
 }
 
 label {
@@ -59,7 +72,7 @@ label {
 }
 
 label.row {
-  gap: var(--s-1);
+	gap: var(--s-1);
 }
 
 details > summary {
@@ -67,7 +80,7 @@ details > summary {
 }
 
 textarea {
-  resize: vertical;
+	resize: vertical;
 }
 
 a.current {

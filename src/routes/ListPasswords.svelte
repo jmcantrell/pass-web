@@ -8,7 +8,6 @@
   import Loading from "@/components/Loading";
 	import ErrorList from "@/components/ErrorList";
 	import EnsureStore from "@/components/EnsureStore";
-	import { path as editStore } from "@/routes/EditStore";
 	import { path as addPassword } from "@/routes/AddPassword";
 	import { path as editPassword } from "@/routes/EditPassword";
 	import stores from "@/local/stores";
@@ -34,7 +33,6 @@
 	<nav id="actions">
 		<button on:click={load}>Refresh List</button>
 		<Link path={addPassword} query={{ source }}>Add Password</Link>
-		<Link path={editStore} query={{ name: source }}>Configure Store</Link>
 	</nav>
 
 	{#await fetchNames}

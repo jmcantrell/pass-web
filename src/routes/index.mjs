@@ -1,9 +1,9 @@
 import * as home from "./Home";
 import * as settings from "./Settings";
-import * as data from "./Data";
+import * as importSettings from "./ImportSettings";
+import * as exportSettings from "./ExportSettings";
 import * as addKey from "./AddKey";
 import * as editKey from "./EditKey";
-import * as listKeys from "./ListKeys";
 import * as addStore from "./AddStore";
 import * as editStore from "./EditStore";
 import * as listStores from "./ListStores";
@@ -15,10 +15,10 @@ import * as notFound from "./NotFound";
 export default [
 	home,
 	settings,
-	data,
+	importSettings,
+	exportSettings,
 	addKey,
 	editKey,
-	listKeys,
 	addStore,
 	editStore,
 	listStores,

@@ -1,5 +1,5 @@
 <script context="module">
-	export const path = "sources/edit";
+	export const path = "stores/edit";
 </script>
 
 <script>
@@ -8,7 +8,7 @@
 	import { formToObject } from "@/lib/form";
 	import EnsureStore from "@/components/EnsureStore";
 	import HostFieldset from "@/components/HostFieldset";
-	import { path as listStores } from "@/routes/ListStores";
+	import { path as settings } from "@/routes/Settings";
 	import sources from "@/local/sources";
 
 	export let query;
@@ -18,7 +18,7 @@
 
 	onMount(() => {
 		name = query.get("name");
-		title = `Configure Password Store: ${name}`;
+		title = `Password Store: ${name}`;
 	});
 
 	function onSubmit(event) {
@@ -33,7 +33,7 @@
 		if (confirm(`Remove password store: ${name}?`)) {
 			delete $sources[name];
 			$sources = $sources;
-			redirect(listStores);
+			redirect(settings);
 		}
 	}
 </script>

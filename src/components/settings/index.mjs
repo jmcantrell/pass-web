@@ -1,4 +1,2 @@
-import * as lockStoresAfterVisibilityLoss from "./LockStoresAfterVisibilityLoss";
-import * as defaultPasswordGeneratorOptions from "./DefaultPasswordGeneratorOptions";
-
-export default [lockStoresAfterVisibilityLoss, defaultPasswordGeneratorOptions];
+export { default as lockStoresAfterVisibilityLoss } from "./LockStoresAfterVisibilityLoss";
+export { default as defaultPasswordGeneratorOptions } from "./DefaultPasswordGeneratorOptions";

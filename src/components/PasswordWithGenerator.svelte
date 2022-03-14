@@ -1,23 +1,31 @@
 <script>
 	import { onMount } from "svelte";
 	import { generate } from "@/lib/password";
+	import { defaults } from "@/lib/settings/defaultPasswordGeneratorOptions";
 	import Password from "@/components/Password";
 	import PasswordGenerationFields from "@/components/PasswordGenerationFields";
-	import { defaults, default as setting } from "@/local/settings/defaultPasswordGeneratorOptions";
+	import setting from "@/local/settings/defaultPasswordGeneratorOptions";
 
 	export let password = "";
 	export let visible = false;
 
 	let { length, classes } = defaults;
 
+	let input;
+
 	onMount(() => {
 		length = $setting.length;
 		classes = $setting.classes;
 	});
+
+	function onButtonClick() {
+		password = generate(length, classes);
+		input.dispatchEvent(new Event("input"));
+	}
 </script>
 
-<Password value={password} {visible} on:input>
-	<button type="button" on:click={() => (password = generate(length, classes))}>Generate</button>
+<Password bind:input value={password} {visible} on:input>
+	<button type="button" on:click={onButtonClick}>Generate</button>
 </Password>
 
 <details>

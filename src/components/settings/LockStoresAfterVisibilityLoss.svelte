@@ -1,7 +1,3 @@
-<script context="module">
-	export const title = "Lock Stores after Visibility Loss";
-</script>
-
 <script>
 	import setting from "@/local/settings/lockStoresAfterVisibilityLoss";
 </script>

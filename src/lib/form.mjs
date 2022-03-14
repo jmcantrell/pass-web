@@ -1,10 +1,12 @@
 export function formToObject(form) {
 	const object = {};
 	const formData = new FormData(form);
+	const names = new Set(formData.keys());
 
-	for (const name of formData.keys()) {
+  for (const name of names) {
 		const input = form.elements[name];
-		object[name] = input.multiple ? formData.getAll(name) : formData.get(name);
+		const multiple = input instanceof RadioNodeList || input.multiple;
+		object[name] = multiple ? formData.getAll(name) : formData.get(name);
 	}
 
 	return object;

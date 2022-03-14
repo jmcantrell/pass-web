@@ -1,14 +1,24 @@
 <script>
+	export let input;
 	export let label = "Password";
 	export let name = "password";
 	export let value = "";
 	export let visible = false;
+	export let required = true;
 </script>
 
 <label for="password">
 	{label}
 	<div>
-		<input id="password" type={visible ? "text" : "password"} {name} {value} on:input required />
+		<input
+			bind:this={input}
+			id="password"
+			type={visible ? "text" : "password"}
+			{name}
+			{value}
+			{required}
+			on:input
+		/>
 		<button type="button" on:click={() => (visible = !visible)}>{visible ? "Hide" : "Show"}</button>
 		<slot />
 	</div>

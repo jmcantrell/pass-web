@@ -1,8 +1,4 @@
 import { createSettingStore } from "@/lib/svelte/store";
+import { key, defaults } from "@/lib/settings/lockStoresAfterVisibilityLoss";
 
-export const defaults = {
-	enabled: true,
-	timeout: 45
-};
-
-export default createSettingStore("lockStoresAfterVisibilityLoss", defaults);
+export default createSettingStore(key, defaults);

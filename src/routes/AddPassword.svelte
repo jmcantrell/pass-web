@@ -1,5 +1,5 @@
 <script context="module">
-	export const path = "passwords/generate";
+	export const path = "passwords/add";
 </script>
 
 <script>

@@ -7,9 +7,7 @@
 	import LockStoresAfterVisibilityLoss from "@/components/LockStoresAfterVisibilityLoss";
 	import { path as home } from "@/routes/Home";
 	import { path as listStores } from "@/routes/ListStores";
-	import { path as listKeys } from "@/routes/ListKeys";
 	import { path as settings } from "@/routes/Settings";
-	import { path as data } from "@/routes/Data";
 
 	let component, params, query;
 
@@ -30,9 +28,7 @@
 	<nav id="menu">
 		<Link path={home}>Home</Link>
 		<Link path={listStores}>Password Stores</Link>
-		<Link path={listKeys}>Cryptography Keys</Link>
 		<Link path={settings}>Settings</Link>
-		<Link path={data}>Data</Link>
 	</nav>
 </header>
 
