@@ -66,6 +66,10 @@ details > summary {
 	cursor: pointer;
 }
 
+textarea {
+  resize: vertical;
+}
+
 a.current {
 	font-weight: bold;
 }
