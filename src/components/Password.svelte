@@ -14,6 +14,7 @@
 			bind:this={input}
 			id="password"
 			type={visible ? "text" : "password"}
+			autocomplete="new-password"
 			{name}
 			{value}
 			{required}
