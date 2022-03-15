@@ -18,6 +18,6 @@
 
 {#if Object.keys($keys).length == 0}
 	<div>
-	  You'll need to <Link path={addKey}>add a key</Link> before this store can be added.
+		You'll need to <Link path={addKey}>add a key</Link> before this store can be added.
 	</div>
 {/if}

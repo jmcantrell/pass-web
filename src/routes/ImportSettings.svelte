@@ -1,14 +1,14 @@
 <script context="module">
-  export const path = "settings/import";
+	export const path = "settings/import";
 </script>
 
 <script>
 	import Password from "@/components/Password";
 
 	async function onSubmit(event) {
-	  const form = event.target;
-	  const data = await form.elements["file"].files[0].text();
-	  console.debug(data);
+		const form = event.target;
+		const data = await form.elements["file"].files[0].text();
+		console.debug(data);
 	}
 </script>
 

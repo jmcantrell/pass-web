@@ -1,7 +1,7 @@
 <script>
 	import { characterClasses } from "@/lib/password";
 
-  export let length, classes;
+	export let length, classes;
 </script>
 
 <label>

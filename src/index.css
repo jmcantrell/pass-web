@@ -52,15 +52,15 @@ details div,
 }
 
 details.box {
-  border: 1px solid;
+	border: 1px solid;
 }
 
 details {
-  padding: var(--s-1);
+	padding: var(--s-1);
 }
 
 details > div {
-  margin-block-start: var(--s0);
+	margin-block-start: var(--s0);
 }
 
 label {

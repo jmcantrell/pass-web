@@ -5,7 +5,7 @@
 <script>
 	import { onMount } from "svelte";
 	import Link from "@/components/Link";
-  import Loading from "@/components/Loading";
+	import Loading from "@/components/Loading";
 	import ErrorList from "@/components/ErrorList";
 	import EnsureStore from "@/components/EnsureStore";
 	import { path as addPassword } from "@/routes/AddPassword";
@@ -36,7 +36,7 @@
 	</nav>
 
 	{#await fetchNames}
-    <Loading name="passwords" />
+		<Loading name="passwords" />
 	{:then names}
 		<ul id="list">
 			{#each names as name}
