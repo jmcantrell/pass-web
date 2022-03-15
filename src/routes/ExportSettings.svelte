@@ -53,11 +53,11 @@
 		const { passphrase, ...selected } = formToObject(form);
 		console.debug(selected);
 		const text = JSON.stringify(getData(selected));
-		const extension = passphrase ? ".asc" : ".json";
+		const extension = passphrase ? "asc" : "json";
 		const type = passphrase ? "text/plain" : "application/json";
 		const content = passphrase ? await encryptText(text, passphrase) : text;
 		href = `data:${type};base64,${btoa(content)}`;
-		filename = `${name}-export-${new Date().toISOString()}${extension}`;
+		filename = `${name}-export-${new Date().toISOString()}.${extension}`;
 	}
 </script>
 
