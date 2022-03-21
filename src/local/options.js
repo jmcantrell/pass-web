@@ -3,7 +3,7 @@ import { createLocalStorageStore } from "@/lib/svelte/store";
 import schema from "@/schemas/options";
 
 function validate(options) {
-  return schema.validateSync(options);
+  return schema.validateSync(options || {});
 }
 
 const options = createLocalStorageStore("options", { defaults: {}, validate });
