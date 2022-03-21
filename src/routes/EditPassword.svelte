@@ -1,76 +1,94 @@
 <script context="module">
-	export const path = "passwords/edit";
+  export const path = "passwords/edit";
 </script>
 
 <script>
-	import { onMount } from "svelte";
-	import { copy } from "@/lib/clipboard";
-	import { redirect } from "@/lib/routing";
-	import { formToObject } from "@/lib/form";
-	import Loading from "@/components/Loading";
-	import ErrorList from "@/components/ErrorList";
-	import EnsurePassword from "@/components/EnsurePassword";
-	import PasswordFields from "@/components/PasswordFields";
-	import PasswordLastUpdated from "@/components/PasswordLastUpdated";
-	import PassphraseProtected from "@/components/PassphraseProtected";
-	import { path as listPasswords } from "@/routes/ListPasswords";
-	import stores from "@/local/stores";
-	import sources from "@/local/sources";
+  import { ValidationError } from "yup";
+  import { redirect } from "@/lib/routing";
+  import { formToObject, setValidity } from "@/lib/form";
+  import entrySchema from "@/schemas/entry";
+  import Link from "@/components/Link";
+  import Error from "@/components/Error";
+  import Loading from "@/components/Loading";
+  import PasswordForm from "@/components/PasswordForm";
+  import EnsurePassword from "@/components/EnsurePassword";
+  import PassphraseProtected from "@/components/PassphraseProtected";
+  import { path as listPasswords } from "@/routes/ListPasswords";
+  import stores from "@/local/stores";
+  import sources from "@/local/sources";
+  import createPageStore from "@/session/pages";
 
-	export let query;
+  export let source, name;
 
-	let form, source, name, title;
-	let changed = false;
+  $: store = $stores[source];
+  $: key = $sources[source].key;
+  $: listSession = createPageStore({}, listPasswords, { query: { source } });
 
-	onMount(async () => {
-		source = query.get("source");
-		name = query.get("name");
-		title = `Password: ${source}/${name}`;
-	});
+  let changed = false;
 
-	async function onCopyButtonClick() {
-		const { password } = formToObject(form);
-		await copy(password);
-	}
+  async function onSubmit(event) {
+    const form = event.target;
+    const { name: newName, ...data } = formToObject(form);
 
-	async function onSubmit() {
-		const data = formToObject(form);
-		await $stores[source].set(name, data);
-		changed = false;
-	}
+    const renaming = name != newName;
+    const overwriting = renaming && (await store.has(newName));
 
-	async function onRemoveButtonClick() {
-		if (confirm(`Remove password: ${source}/${name}?`)) {
-			await $stores[source].remove(name);
-			redirect(listPasswords, { query: { source } });
-		}
-	}
+    if (overwriting && !confirm(`Overwrite existing password: ${newName}?`)) return;
+
+    let entry;
+
+    try {
+      entry = entrySchema.validateSync(data);
+    } catch (error) {
+      if (error instanceof ValidationError) {
+        setValidity(form, error.path, error.message);
+      } else {
+        throw error;
+      }
+      return;
+    }
+
+    await store.set(newName, entry);
+
+    $listSession.changed = true;
+
+    if (renaming) {
+      await store.remove(name);
+      redirect(path, { query: { source, name: newName } });
+      return;
+    }
+
+    changed = false;
+  }
+
+  async function onDeleteButtonClick() {
+    if (!confirm(`Delete password: ${source}/${name}?`)) return;
+    await store.remove(name);
+    $listSession.changed = true;
+    redirect(listPasswords, { query: { source } });
+  }
 </script>
 
 <EnsurePassword {source} {name}>
-	<h1>{title}</h1>
+  <h1>
+    Edit Password:
+    <Link path={listPasswords} query={{ source }}>{source}</Link>/{name}
+  </h1>
 
-	<PassphraseProtected key={$sources[source].key}>
-		{#await $stores[source].get(name)}
-			<Loading>Fetching and decrypting content...</Loading>
-		{:then options}
-			<form bind:this={form} on:submit|preventDefault={onSubmit}>
-				<fieldset>
-					<legend>Decrypted Content</legend>
-					<button on:click={onCopyButtonClick}>Copy password to clipboard</button>
-					<PasswordFields {...options} on:input={() => (changed = true)} />
-				</fieldset>
-				<input type="submit" value="Save Changes" disabled={!changed} />
-			</form>
-		{:catch error}
-			<ErrorList items={[error]} />
-		{/await}
-	</PassphraseProtected>
+  <nav id="actions">
+    <button on:click={onDeleteButtonClick}>Delete Password</button>
+  </nav>
 
-	<button on:click={onRemoveButtonClick}>Remove Password</button>
-
-	<section id="updated">
-		<h2>Last Updated</h2>
-		<PasswordLastUpdated {source} {name} />
-	</section>
+  <PassphraseProtected {key}>
+    {#await store.get(name)}
+      <Loading>Fetching and decrypting content...</Loading>
+    {:then entry}
+      <form on:submit|preventDefault={onSubmit}>
+        <PasswordForm {name} {...entry} on:submit={onSubmit} on:input={() => (changed = true)} />
+        <input type="submit" value="Save Changes" disabled={!changed} />
+      </form>
+    {:catch error}
+      <Error>{error}</Error>
+    {/await}
+  </PassphraseProtected>
 </EnsurePassword>

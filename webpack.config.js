@@ -16,119 +16,119 @@ const srcDir = path.resolve(__dirname, "src");
 const filename = "[name].[contenthash]";
 
 const config = {
-	mode,
+  mode,
 
-	entry: path.resolve(srcDir, "index.mjs"),
+  entry: path.resolve(srcDir, "index.js"),
 
-	output: {
-		path: path.resolve(__dirname, "build"),
-		filename: `${filename}.js`,
-		publicPath: baseUrl
-	},
+  output: {
+    path: path.resolve(__dirname, "build"),
+    filename: `${filename}.js`,
+    publicPath: baseUrl
+  },
 
-	devtool: "source-map",
+  devtool: "source-map",
 
-	plugins: [
-		new CleanPlugin(),
-		new HtmlPlugin({
-			template: path.resolve(srcDir, "index.html")
-		}),
-		new CssPlugin({
-			filename: `${filename}.css`
-		}),
-		new CopyPlugin({
-			patterns: [
-				{
-					from: "**/*",
-					context: path.resolve(__dirname, "public")
-				}
-			]
-		}),
-		new DefinePlugin({
-			"process.env.BASE_URL": JSON.stringify(baseUrl),
-			...Object.fromEntries(
-				["name", "version", "homepage", "bugs"].map((key) => {
-					return [`process.env.PACKAGE_${key.toUpperCase()}`, JSON.stringify(packageConfig[key])];
-				})
-			)
-		})
-	],
+  plugins: [
+    new CleanPlugin(),
+    new HtmlPlugin({
+      template: path.resolve(srcDir, "index.html")
+    }),
+    new CssPlugin({
+      filename: `${filename}.css`
+    }),
+    new CopyPlugin({
+      patterns: [
+        {
+          from: "**/*",
+          context: path.resolve(__dirname, "public")
+        }
+      ]
+    }),
+    new DefinePlugin({
+      "process.env.BASE_URL": JSON.stringify(baseUrl),
+      ...Object.fromEntries(
+        ["name", "version", "homepage", "bugs"].map((key) => {
+          return [`process.env.PACKAGE_${key.toUpperCase()}`, JSON.stringify(packageConfig[key])];
+        })
+      )
+    })
+  ],
 
-	resolve: {
-		extensions: [".mjs", ".js", ".svelte"],
-		mainFields: ["svelte", "browser", "module", "main"],
-		alias: {
-			"@": path.resolve(__dirname, "src")
-		}
-	},
+  resolve: {
+    extensions: [".mjs", ".js", ".svelte"],
+    mainFields: ["svelte", "browser", "module", "main"],
+    alias: {
+      "@": path.resolve(__dirname, "src")
+    }
+  },
 
-	module: {
-		rules: [
-			{
-				test: /\.(m?js|svelte)$/,
-				resolve: { fullySpecified: false },
-				use: {
-					loader: "babel-loader",
-					options: {
-						cacheDirectory: true,
-						ignore: [/node_modules/],
-						presets: [
-							[
-								"@babel/preset-env",
-								{
-									debug: !!process.env.DEBUG,
-									browserslistEnv: mode,
-									useBuiltIns: "usage",
-									corejs: 3
-								}
-							]
-						]
-					}
-				}
-			},
-			{
-				test: /\.svelte$/,
-				use: {
-					loader: "svelte-loader",
-					options: { dev: mode === "development", ...svelteConfig }
-				}
-			},
-			{
-				test: /\.css$/i,
-				use: [CssPlugin.loader, "css-loader", "postcss-loader"]
-			}
-		]
-	},
+  module: {
+    rules: [
+      {
+        test: /\.(m?js|svelte)$/,
+        resolve: { fullySpecified: false },
+        use: {
+          loader: "babel-loader",
+          options: {
+            cacheDirectory: true,
+            ignore: [/node_modules/],
+            presets: [
+              [
+                "@babel/preset-env",
+                {
+                  debug: !!process.env.DEBUG,
+                  browserslistEnv: mode,
+                  useBuiltIns: "usage",
+                  corejs: 3
+                }
+              ]
+            ]
+          }
+        }
+      },
+      {
+        test: /\.svelte$/,
+        use: {
+          loader: "svelte-loader",
+          options: { dev: mode === "development", ...svelteConfig }
+        }
+      },
+      {
+        test: /\.css$/i,
+        use: [CssPlugin.loader, "css-loader", "postcss-loader"]
+      }
+    ]
+  },
 
-	optimization: {
-		moduleIds: "deterministic",
-		runtimeChunk: "single",
-		splitChunks: {
-			cacheGroups: {
-				vendor: {
-					test: /\/node_modules\//,
-					name: "vendors",
-					chunks: "all"
-				}
-			}
-		}
-	}
+  optimization: {
+    moduleIds: "deterministic",
+    runtimeChunk: "single",
+    splitChunks: {
+      cacheGroups: {
+        vendor: {
+          test: /\/node_modules\//,
+          name: "vendors",
+          chunks: "all"
+        }
+      }
+    }
+  }
 };
 
 if (mode == "development") {
-	config.devServer = {
-		host: "0.0.0.0",
-		port: +process.env.FRONTEND_SERVER_PORT || 8000,
-		static: false,
-		historyApiFallback: true,
-		server: {
-			type: "https",
-			options: {
-				key: fs.readFileSync("localhost-key.pem"),
-				cert: fs.readFileSync("localhost-cert.pem")
-			}
-		}
-	};
+  config.devServer = {
+    host: "0.0.0.0",
+    port: +process.env.FRONTEND_SERVER_PORT || 8000,
+    static: false,
+    historyApiFallback: true,
+    server: {
+      type: "https",
+      options: {
+        key: fs.readFileSync("localhost-key.pem"),
+        cert: fs.readFileSync("localhost-cert.pem")
+      }
+    }
+  };
 }
 
 module.exports = config;

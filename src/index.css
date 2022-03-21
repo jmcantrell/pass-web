@@ -1,43 +1,43 @@
 @import "sanitize.css";
 
 :root {
-	--ratio: 1.5;
-	--s-5: calc(var(--s-4) / var(--ratio));
-	--s-4: calc(var(--s-3) / var(--ratio));
-	--s-3: calc(var(--s-2) / var(--ratio));
-	--s-2: calc(var(--s-1) / var(--ratio));
-	--s-1: calc(var(--s0) / var(--ratio));
-	--s0: 1rem;
-	--s1: calc(var(--s0) * var(--ratio));
-	--s2: calc(var(--s1) * var(--ratio));
-	--s3: calc(var(--s2) * var(--ratio));
-	--s4: calc(var(--s3) * var(--ratio));
-	--s5: calc(var(--s4) * var(--ratio));
+  --ratio: 1.5;
+  --s-5: calc(var(--s-4) / var(--ratio));
+  --s-4: calc(var(--s-3) / var(--ratio));
+  --s-3: calc(var(--s-2) / var(--ratio));
+  --s-2: calc(var(--s-1) / var(--ratio));
+  --s-1: calc(var(--s0) / var(--ratio));
+  --s0: 1rem;
+  --s1: calc(var(--s0) * var(--ratio));
+  --s2: calc(var(--s1) * var(--ratio));
+  --s3: calc(var(--s2) * var(--ratio));
+  --s4: calc(var(--s3) * var(--ratio));
+  --s5: calc(var(--s4) * var(--ratio));
 }
 
 * {
-	box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 body,
 main,
 nav {
-	display: flex;
-	gap: var(--s0);
+  display: flex;
+  gap: var(--s0);
 }
 
 body,
 main {
-	flex-direction: column;
+  flex-direction: column;
 }
 
 nav {
-	flex-wrap: wrap;
+  flex-wrap: wrap;
 }
 
 body,
 fieldset {
-	padding: var(--s0);
+  padding: var(--s0);
 }
 
 main,
@@ -46,57 +46,51 @@ fieldset,
 label,
 details div,
 .column {
-	display: flex;
-	flex-direction: column;
-	gap: var(--s0);
-}
-
-details.box {
-	border: 1px solid;
-}
-
-details {
-	padding: var(--s-1);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s0);
 }
 
 details > div {
-	margin-block-start: var(--s0);
+  margin-block-start: var(--s0);
 }
 
 label {
-	gap: var(--s-2);
-}
-
-.row {
-	flex-direction: row;
-}
-
-label.row {
-	gap: var(--s-1);
+  gap: var(--s-2);
 }
 
 details > summary {
-	cursor: pointer;
+  cursor: pointer;
 }
 
 textarea {
-	resize: vertical;
+  resize: vertical;
 }
 
 a.current {
-	font-weight: bold;
+  font-weight: bold;
 }
 
-ul.errors {
-	list-style: none;
-	padding: 0;
-	margin: 0;
+ul.reset,
+ul.reset li,
+ul.reset ul li {
+  margin: 0;
+  padding: 0;
+  text-indent: 0;
+  list-style-type: none;
 }
 
-ul.errors li {
-	padding-left: var(--s-2);
+.box {
+  border: 1px solid;
+  padding: var(--s0);
 }
 
-ul.errors li::before {
-	content: "💥 ";
+.row {
+  display: flex;
+  flex-direction: row;
+  gap: var(--s-1);
+}
+
+.center {
+  text-align: center;
 }

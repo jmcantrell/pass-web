@@ -1,59 +1,68 @@
 <script context="module">
-	export const path = "stores/edit";
+  export const path = "stores/edit";
 </script>
 
 <script>
-	import { onMount } from "svelte";
-	import { redirect } from "@/lib/routing";
-	import { formToObject } from "@/lib/form";
-	import EnsureStore from "@/components/EnsureStore";
-	import HostFieldset from "@/components/HostFieldset";
-	import { path as settings } from "@/routes/Settings";
-	import sources from "@/local/sources";
+  import { ValidationError } from "yup";
+  import { redirect } from "@/lib/routing";
+  import { formToObject, setValidity } from "@/lib/form";
+  import sourceSchema from "@/schemas/source";
+  import SourceForm from "@/components/SourceForm";
+  import EnsureStore from "@/components/EnsureStore";
+  import { path as settings } from "@/routes/Settings";
+  import keys from "@/local/keys";
+  import sources from "@/local/sources";
 
-	export let query;
+  export let name;
 
-	let name, title;
-	let changed = false;
+  let changed = false;
 
-	onMount(() => {
-		name = query.get("name");
-		title = `Password Store: ${name}`;
-	});
+  function onSubmit(event) {
+    const form = event.target;
+    const { name: newName, ...data } = formToObject(form);
 
-	function onSubmit(event) {
-		const { key, ...options } = formToObject(event.target);
-		$sources[name].key = key;
-		$sources[name].options = options;
-		$sources[name].updated = new Date();
-		changed = false;
-	}
+    const renaming = name != newName;
+    const overwriting = renaming && $sources[newName];
 
-	function onRemoveButtonClick() {
-		if (confirm(`Remove password store: ${name}?`)) {
-			delete $sources[name];
-			$sources = $sources;
-			redirect(settings);
-		}
-	}
+    if (overwriting && !confirm(`Overwrite existing store: ${newName}?`)) return;
+
+    try {
+      $sources[newName] = sourceSchema.validateSync(data, { context: { keys: $keys } });
+    } catch (error) {
+      if (error instanceof ValidationError) {
+        setValidity(form, error.path, error.message);
+      } else {
+        throw error;
+      }
+      return;
+    }
+
+    if (renaming) {
+      delete $sources[name];
+      $sources = $sources;
+      redirect(path, { query: { name: newName } });
+      return;
+    }
+
+    changed = false;
+  }
+
+  function onRemoveButtonClick() {
+    if (confirm(`Remove password store: ${name}?`)) {
+      delete $sources[name];
+      $sources = $sources;
+      redirect(settings);
+    }
+  }
 </script>
 
 <EnsureStore {name}>
-	<h1>{title}</h1>
+  <h1>Edit Password Store</h1>
 
-	<form on:submit|preventDefault={onSubmit}>
-		<HostFieldset
-			id={$sources[name].host}
-			options={$sources[name].options}
-			on:input={() => (changed = true)}
-		/>
-		<input type="submit" value="Save Changes" disabled={!changed} />
-	</form>
+  <form on:submit|preventDefault={onSubmit}>
+    <SourceForm {name} {...$sources[name]} on:input={() => (changed = true)} />
+    <input type="submit" value="Save Changes" disabled={!changed} />
+  </form>
 
-	<button on:click={onRemoveButtonClick}>Remove Store</button>
-
-	<section id="updated">
-		<h2>Last Updated</h2>
-		{new Date($sources[name].updated)}
-	</section>
+  <button on:click={onRemoveButtonClick}>Remove Store</button>
 </EnsureStore>

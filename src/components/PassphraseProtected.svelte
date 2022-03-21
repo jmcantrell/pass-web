@@ -1,36 +1,36 @@
 <script>
-	import { setValidity, clearValidity } from "@/lib/form";
-	import Password from "@/components/Password";
-	import cryptors from "@/local/cryptors";
+  import { setValidity, clearValidity } from "@/lib/form";
+  import Password from "@/components/Password";
+  import cryptors from "@/local/cryptors";
 
-	export let key;
+  export let key;
+  export let label = "Content";
 
-	$: unlocked = $cryptors[key].isUnlocked();
+  $: cryptor = $cryptors[key];
+  $: unlocked = cryptor.isUnlocked();
 
-	async function onSubmit(event) {
-		const form = event.target;
-		const passphrase = form.elements["passphrase"].value;
-		const cryptor = $cryptors[key];
+  async function onSubmit(event) {
+    const form = event.target;
+    const field = "passphrase";
 
-		try {
-			await cryptor.unlock(passphrase);
-			form.reset();
-		} catch (e) {
-			setValidity(form, "passphrase", e.message);
-		} finally {
-			unlocked = cryptor.isUnlocked();
-		}
-	}
+    try {
+      unlocked = await cryptor.unlock(form.elements[field].value);
+    } catch (error) {
+      setValidity(form, field, error.message);
+    }
+
+    form.reset();
+  }
 </script>
 
 {#if unlocked}
-	<slot />
+  <slot />
 {:else}
-	<form on:submit|preventDefault={onSubmit}>
-		<fieldset>
-			<legend>Unlock Key: {key}</legend>
-			<Password label="Passphrase" name="passphrase" on:input={clearValidity} />
-		</fieldset>
-		<input type="submit" value="Verify Passphrase" />
-	</form>
+  <form on:submit|preventDefault={onSubmit}>
+    <fieldset>
+      <legend>Unlock {label}</legend>
+      <Password label="Passphrase for {key}" name="passphrase" on:input={clearValidity} />
+    </fieldset>
+    <input type="submit" value="Verify Passphrase" />
+  </form>
 {/if}

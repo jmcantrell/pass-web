@@ -1,66 +1,60 @@
 <script context="module">
-	export const path = "passwords/add";
+  export const path = "passwords/add";
 </script>
 
 <script>
-	import { onMount } from "svelte";
-	import { navigate } from "@/lib/routing";
-	import { formToObject, setValidity, clearValidity } from "@/lib/form";
-	import EnsureStore from "@/components/EnsureStore";
-	import PasswordFields from "@/components/PasswordFields";
-	import { path as editPassword } from "@/routes/EditPassword";
-	import stores from "@/local/stores";
-	import sources from "@/local/sources";
+  import { ValidationError } from "yup";
+  import { redirect } from "@/lib/routing";
+  import { formToObject, setValidity } from "@/lib/form";
+  import Link from "@/components/Link";
+  import EnsureStore from "@/components/EnsureStore";
+  import PasswordForm from "@/components/PasswordForm";
+  import { path as editPassword } from "@/routes/EditPassword";
+  import { path as listPasswords } from "@/routes/ListPasswords";
+  import entrySchema from "@/schemas/entry";
+  import stores from "@/local/stores";
+  import createPageStore from "@/session/pages";
 
-	export let query;
+  export let source;
 
-	let source, key, title;
+  $: store = $stores[source];
+  $: listSession = createPageStore({}, listPasswords, { query: { source } });
 
-	onMount(() => {
-		source = query.get("source");
-		key = $sources[source].key;
-		title = `Add Password: ${source}`;
-	});
+  async function onSubmit(event) {
+    const form = event.target;
+    const { name, ...data } = formToObject(form);
 
-	async function onSubmit(event) {
-		const form = event.target;
-		const { name, ...data } = formToObject(form);
-		const store = $stores[source];
+    let entry;
 
-		if (await store.has(name)) {
-			setValidity(form, "name", "A password with that name already exists.");
-			return;
-		}
+    try {
+      entry = entrySchema.validateSync(data);
+    } catch (error) {
+      if (error instanceof ValidationError) {
+        setValidity(form, error.path, error.message);
+      } else {
+        throw error;
+      }
+      return;
+    }
 
-		await store.set(name, data);
-		navigate(editPassword, { query: { source, name } });
-	}
+    const overwriting = await store.has(name);
+
+    if (overwriting && !confirm(`Overwrite existing password: ${name}?`)) return;
+
+    await store.set(name, entry);
+    $listSession.changed = true;
+    redirect(editPassword, { query: { source, name } });
+  }
 </script>
 
 <EnsureStore name={source}>
-	<h1>{title}</h1>
+  <h1>
+    Add Password:
+    <Link path={listPasswords} query={{ source }}>{source}</Link>
+  </h1>
 
-	<form on:submit|preventDefault={onSubmit} class="column">
-		<fieldset class="column">
-			<legend>Where would you like this password stored?</legend>
-			<label class="column">
-				Password Name
-				<input
-					required
-					name="name"
-					maxlength="256"
-					autocomplete="off"
-					placeholder="required, example: domain.net/username"
-					on:input={clearValidity}
-				/>
-			</label>
-		</fieldset>
-
-		<fieldset>
-			<legend>What would you like stored?</legend>
-			<PasswordFields />
-		</fieldset>
-
-		<input type="submit" value="Add Password" />
-	</form>
+  <form on:submit|preventDefault={onSubmit}>
+    <PasswordForm />
+    <input type="submit" value="Add Password" />
+  </form>
 </EnsureStore>
