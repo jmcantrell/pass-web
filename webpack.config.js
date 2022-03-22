@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const { DefinePlugin, EnvironmentPlugin } = require("webpack");
+const { DefinePlugin } = require("webpack");
 const HtmlPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin: CleanPlugin } = require("clean-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
@@ -15,8 +15,45 @@ const srcDir = path.resolve(__dirname, "src");
 
 const filename = "[name].[contenthash]";
 
+const plugins = [
+  new CleanPlugin(),
+  new HtmlPlugin({
+    template: path.resolve(srcDir, "index.html")
+  }),
+  new CssPlugin({
+    filename: `${filename}.css`
+  }),
+  new CopyPlugin({
+    patterns: [
+      {
+        from: "**/*",
+        context: path.resolve(__dirname, "public")
+      }
+    ]
+  }),
+  new DefinePlugin({
+    "process.env.BASE_URL": JSON.stringify(baseUrl),
+    ...Object.fromEntries(
+      ["name", "version", "homepage", "bugs"].map((key) => {
+        return [`process.env.PACKAGE_${key.toUpperCase()}`, JSON.stringify(packageConfig[key])];
+      })
+    )
+  })
+];
+
+if (mode == "development") {
+  const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
+  plugins.push(
+    new BundleAnalyzerPlugin({
+      analyzerMode: "static",
+      openAnalyzer: false
+    })
+  );
+}
+
 const config = {
   mode,
+  plugins,
 
   entry: path.resolve(srcDir, "index.js"),
 
@@ -27,32 +64,6 @@ const config = {
   },
 
   devtool: "source-map",
-
-  plugins: [
-    new CleanPlugin(),
-    new HtmlPlugin({
-      template: path.resolve(srcDir, "index.html")
-    }),
-    new CssPlugin({
-      filename: `${filename}.css`
-    }),
-    new CopyPlugin({
-      patterns: [
-        {
-          from: "**/*",
-          context: path.resolve(__dirname, "public")
-        }
-      ]
-    }),
-    new DefinePlugin({
-      "process.env.BASE_URL": JSON.stringify(baseUrl),
-      ...Object.fromEntries(
-        ["name", "version", "homepage", "bugs"].map((key) => {
-          return [`process.env.PACKAGE_${key.toUpperCase()}`, JSON.stringify(packageConfig[key])];
-        })
-      )
-    })
-  ],
 
   resolve: {
     extensions: [".mjs", ".js", ".svelte"],
