@@ -59,10 +59,12 @@
 <EnsureStore {name}>
   <h1>Edit Password Store</h1>
 
+  <nav id="actions">
+    <button on:click={onRemoveButtonClick}>Remove Store</button>
+  </nav>
+
   <form on:submit|preventDefault={onSubmit}>
     <SourceForm {name} {...$sources[name]} on:input={() => (changed = true)} />
     <input type="submit" value="Save Changes" disabled={!changed} />
   </form>
-
-  <button on:click={onRemoveButtonClick}>Remove Store</button>
 </EnsureStore>

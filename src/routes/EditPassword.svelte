@@ -14,6 +14,8 @@
   import EnsurePassword from "@/components/EnsurePassword";
   import PassphraseProtected from "@/components/PassphraseProtected";
   import { path as listPasswords } from "@/routes/ListPasswords";
+  import { path as renamePassword } from "@/routes/RenamePassword";
+  import { path as duplicatePassword } from "@/routes/DuplicatePassword";
   import stores from "@/local/stores";
   import sources from "@/local/sources";
   import createPageStore from "@/session/pages";
@@ -77,6 +79,8 @@
 
   <nav id="actions">
     <button on:click={onDeleteButtonClick}>Delete Password</button>
+    <Link path={renamePassword} query={{ source, name }}>Rename Password</Link>
+    <Link path={duplicatePassword} query={{ source, name }}>Duplicate Password</Link>
   </nav>
 
   <PassphraseProtected {key}>

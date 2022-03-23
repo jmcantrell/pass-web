@@ -4,8 +4,10 @@
 
 <script>
   import { readMessage, decrypt as decryptWithPGP } from "openpgp";
+  import { redirect } from "@/lib/routing";
   import { isPlainObject } from "@/lib/util";
   import Password from "@/components/Password";
+  import { path as settings } from "@/routes/Settings";
   import keySchema from "@/schemas/key";
   import sourceSchema from "@/schemas/source";
   import optionsSchema from "@/schemas/options";
@@ -49,6 +51,8 @@
     $keys = newKeys;
     $sources = newSources;
     $options = newOptions;
+
+    redirect(settings);
   }
 </script>
 

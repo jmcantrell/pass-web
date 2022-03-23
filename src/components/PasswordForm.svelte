@@ -3,6 +3,7 @@
   import pwgen from "@/lib/pwgen";
   import { copy } from "@/lib/clipboard";
   import Password from "@/components/Password";
+  import NameField from "@/components/NameField";
   import PasswordGeneratorForm from "@/components/PasswordGeneratorForm";
   import options from "@/local/options";
 
@@ -31,17 +32,7 @@
 
 <fieldset>
   <legend>Where would you like this password stored?</legend>
-  <label>
-    Password Name
-    <input
-      required
-      name="name"
-      bind:value={name}
-      maxlength="256"
-      placeholder="required, example: domain.net/username"
-      on:input
-    />
-  </label>
+  <NameField required label="Password Name" {name} on:input />
 </fieldset>
 
 <fieldset>

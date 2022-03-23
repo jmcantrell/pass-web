@@ -40,13 +40,12 @@ function createWebStorageStore(area, key, listen, { initial = null, validate = n
   }
 
   function setFromStorageOrInitial() {
-    const value = storage.getItem(key);
+    const value = JSON.parse(storage.getItem(key));
     if (value === null) {
       set(initial);
     } else {
-      const parsed = JSON.parse(value);
-      setStore(parsed);
-      current = parsed;
+      setStore(value);
+      current = value;
     }
   }
 

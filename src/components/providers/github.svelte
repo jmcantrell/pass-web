@@ -5,15 +5,15 @@
 <script>
   import Password from "@/components/Password";
 
-  export let repository, branch, token;
+  export let repo, branch, token;
 </script>
 
 <label>
   Repository
   <input
     required
-    name="repository"
-    bind:value={repository}
+    name="repo"
+    bind:value={repo}
     placeholder="required, example: user/password-store"
     on:input
   />

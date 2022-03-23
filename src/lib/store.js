@@ -36,16 +36,28 @@ export default function ({ provider, cryptor }) {
     const content = serialize(entry);
     const armoredMessage = await cryptor.encrypt(content);
     const commitMessage = `${update ? "Edit" : "Add"} password for ${name} using web interface.`;
-    await provider.set(name + extension, armoredMessage, commitMessage, update);
+    await provider.set(name + extension, armoredMessage, commitMessage);
   }
 
   async function remove(name) {
     await provider.remove(name + extension, `Remove password for ${name} using web interface.`);
   }
 
-  async function updated(name) {
-    return await provider.updated(name + extension);
+  async function duplicate(from, to) {
+    await provider.duplicate(
+      from + extension,
+      to + extension,
+      `Copy ${from} to ${to} using web interface.`
+    );
   }
 
-  return { list, has, get, set, remove, updated };
+  async function rename(from, to) {
+    await provider.rename(
+      from + extension,
+      to + extension,
+      `Rename ${from} to ${to} using web interface.`
+    );
+  }
+
+  return { list, has, get, set, remove, duplicate, rename };
 }

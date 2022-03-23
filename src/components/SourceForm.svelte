@@ -1,5 +1,6 @@
 <script>
   import Link from "@/components/Link";
+  import NameField from "@/components/NameField";
   import * as providerForms from "@/components/providers";
   import { path as addKey } from "@/routes/AddKey";
   import keys from "@/local/keys";
@@ -9,10 +10,13 @@
 
 <fieldset>
   <legend>How would you like to refer to this store?</legend>
-  <label>
-    Store Name
-    <input required name="name" bind:value={name} placeholder="required, must be unique" on:input />
-  </label>
+  <NameField
+    required
+    label="Store Name"
+    value={name}
+    placeholder="required, must be unique"
+    on:input
+  />
 </fieldset>
 
 <fieldset>

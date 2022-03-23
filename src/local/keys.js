@@ -9,4 +9,4 @@ function validate(keys) {
   );
 }
 
-export default createLocalStorageStore("keys", { defaults: {}, validate });
+export default createLocalStorageStore("keys", { initial: {}, validate });

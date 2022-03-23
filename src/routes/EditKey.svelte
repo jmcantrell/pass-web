@@ -69,12 +69,14 @@
 <EnsureKey {name}>
   <h1>Edit Cryptography Key</h1>
 
+  <nav id="actions">
+    <button on:click={onRemoveButtonClick}>Remove Key</button>
+  </nav>
+
   <form on:submit|preventDefault={onSubmit}>
     <KeyForm {name} {...$keys[name]} on:input={() => (changed = true)} />
     <input type="submit" value="Save Changes" disabled={!changed} />
   </form>
-
-  <button on:click={onRemoveButtonClick}>Remove Key</button>
 
   {#if sourcesUsingKey.length > 0}
     <section id="dependencies">

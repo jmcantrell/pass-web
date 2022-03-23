@@ -10,4 +10,4 @@ function validate(sources) {
   );
 }
 
-export default createLocalStorageStore("sources", { defaults: {}, validate });
+export default createLocalStorageStore("sources", { initial: {}, validate });
