@@ -74,7 +74,7 @@
 <EnsurePassword {source} {name}>
   <h1>
     Edit Password:
-    <Link path={listPasswords} query={{ source }}>{source}</Link>/{name}
+    <Link path={listPasswords} query={{ source }}>{source}</Link> / {name}
   </h1>
 
   <nav id="actions">

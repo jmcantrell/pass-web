@@ -67,7 +67,7 @@
 </script>
 
 <EnsureKey {name}>
-  <h1>Edit Cryptography Key</h1>
+  <h1>Edit Cryptography Key: {name}</h1>
 
   <nav id="actions">
     <button on:click={onRemoveButtonClick}>Remove Key</button>
@@ -79,13 +79,11 @@
   </form>
 
   {#if sourcesUsingKey.length > 0}
-    <section id="dependencies">
-      <h2>Stores Using this Key</h2>
-      <ul>
-        {#each sourcesUsingKey as name}
-          <li><Link path={editStore} query={{ name }}>{name}</Link></li>
-        {/each}
-      </ul>
-    </section>
+    <h2>Stores Using this Key</h2>
+    <ul>
+      {#each sourcesUsingKey as name}
+        <li><Link path={editStore} query={{ name }}>{name}</Link></li>
+      {/each}
+    </ul>
   {/if}
 </EnsureKey>

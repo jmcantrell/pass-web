@@ -35,7 +35,8 @@
 <EnsurePassword {source} {name}>
   <h1>
     Rename Password:
-    <Link path={listPasswords} query={{ source }}>{source}</Link>/{name}
+    <Link path={listPasswords} query={{ source }}>{source}</Link> /
+    <Link path={editPassword} query={{ source, name }}>{name}</Link>
   </h1>
 
   <form on:submit|preventDefault={onSubmit}>

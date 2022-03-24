@@ -33,17 +33,17 @@
 <EnsureStore name={source}>
   <h1>Password Store: {source}</h1>
 
+  <nav id="actions">
+    <button on:click={load}>Refresh List</button>
+    <Link path={addPassword} query={{ source }}>Add Password</Link>
+  </nav>
+
   {#if $listSession.changed}
     <Message acknowledgement={true} on:acknowledge={() => ($listSession.changed = false)}>
       This store has been modified recently. It may take a moment for this change to be reflected in
       the list.
     </Message>
   {/if}
-
-  <nav id="actions">
-    <button on:click={load}>Refresh List</button>
-    <Link path={addPassword} query={{ source }}>Add Password</Link>
-  </nav>
 
   {#await fetchList}
     <Loading name="passwords" />

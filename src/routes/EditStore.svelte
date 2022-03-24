@@ -57,7 +57,7 @@
 </script>
 
 <EnsureStore {name}>
-  <h1>Edit Password Store</h1>
+  <h1>Edit Password Store: {name}</h1>
 
   <nav id="actions">
     <button on:click={onRemoveButtonClick}>Remove Store</button>
