@@ -57,14 +57,20 @@
 </script>
 
 <EnsureStore {name}>
-  <h1>Edit Password Store: {name}</h1>
+  <h1>Password Store: {name}</h1>
 
-  <nav id="actions">
-    <button on:click={onRemoveButtonClick}>Remove Store</button>
-  </nav>
+  <section id="actions">
+    <h2>Actions</h2>
+    <nav>
+      <button on:click={onRemoveButtonClick}>Remove Store</button>
+    </nav>
+  </section>
 
-  <form on:submit|preventDefault={onSubmit}>
-    <SourceForm {name} {...$sources[name]} on:input={() => (changed = true)} />
-    <input type="submit" value="Save Changes" disabled={!changed} />
-  </form>
+  <section id="editor">
+    <h2>Edit Store</h2>
+    <form on:submit|preventDefault={onSubmit}>
+      <SourceForm {name} {...$sources[name]} on:input={() => (changed = true)} />
+      <input type="submit" value="Save Changes" disabled={!changed} />
+    </form>
+  </section>
 </EnsureStore>

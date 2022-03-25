@@ -34,22 +34,25 @@
 
 <EnsurePassword {source} {name}>
   <h1>
-    Rename Password:
+    Password:
     <Link path={listPasswords} query={{ source }}>{source}</Link> /
     <Link path={editPassword} query={{ source, name }}>{name}</Link>
   </h1>
 
-  <form on:submit|preventDefault={onSubmit}>
-    <fieldset>
-      <legend>Where should it be moved?</legend>
-      <NameField
-        required
-        value={name}
-        label="Password Name"
-        placeholder="required"
-        on:input={() => (changed = true)}
-      />
-    </fieldset>
-    <input type="submit" value="Rename Password" disabled={!changed} />
-  </form>
+  <section id="editor">
+    <h2>Rename Password</h2>
+    <form on:submit|preventDefault={onSubmit}>
+      <fieldset>
+        <legend>Where should it be moved?</legend>
+        <NameField
+          required
+          value={name}
+          label="Password Name"
+          placeholder="required"
+          on:input={() => (changed = true)}
+        />
+      </fieldset>
+      <input type="submit" value="Rename Password" disabled={!changed} />
+    </form>
+  </section>
 </EnsurePassword>

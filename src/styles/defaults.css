@@ -1,0 +1,41 @@
+* {
+  box-sizing: border-box;
+}
+
+body,
+main,
+form,
+fieldset,
+label,
+details div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s0);
+}
+
+label {
+  gap: var(--s-2);
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s0);
+}
+
+body,
+fieldset {
+  padding: var(--s0);
+}
+
+details > div {
+  margin-block-start: var(--s0);
+}
+
+details > summary {
+  cursor: pointer;
+}
+
+textarea {
+  resize: vertical;
+}

@@ -34,22 +34,25 @@
 
 <EnsurePassword {source} {name}>
   <h1>
-    Duplicate Password:
+    Password:
     <Link path={listPasswords} query={{ source }}>{source}</Link> /
     <Link path={editPassword} query={{ source, name }}>{name}</Link>
   </h1>
 
-  <form on:submit|preventDefault={onSubmit}>
-    <fieldset>
-      <legend>Where should the duplicate be stored?</legend>
-      <NameField
-        required
-        value={name}
-        label="Password Name"
-        placeholder="required"
-        on:input={() => (changed = true)}
-      />
-    </fieldset>
-    <input type="submit" value="Duplicate Password" disabled={!changed} />
-  </form>
+  <section id="editor">
+    <h2>Duplicate Password</h2>
+    <form on:submit|preventDefault={onSubmit}>
+      <fieldset>
+        <legend>Where should the duplicate be stored?</legend>
+        <NameField
+          required
+          value={name}
+          label="Password Name"
+          placeholder="required"
+          on:input={() => (changed = true)}
+        />
+      </fieldset>
+      <input type="submit" value="Duplicate Password" disabled={!changed} />
+    </form>
+  </section>
 </EnsurePassword>

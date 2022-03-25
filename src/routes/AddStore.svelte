@@ -33,9 +33,12 @@
   }
 </script>
 
-<h1>Add Password Store</h1>
+<h1>Password Stores</h1>
 
-<form on:submit|preventDefault={onSubmit}>
-  <SourceForm />
-  <input type="submit" value="Add Store" />
-</form>
+<section id="editor">
+  <h2>Add Store</h2>
+  <form on:submit|preventDefault={onSubmit}>
+    <SourceForm />
+    <input type="submit" value="Add Store" />
+  </form>
+</section>

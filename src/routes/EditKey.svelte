@@ -67,23 +67,31 @@
 </script>
 
 <EnsureKey {name}>
-  <h1>Edit Cryptography Key: {name}</h1>
+  <h1>Cryptography Key: {name}</h1>
 
-  <nav id="actions">
-    <button on:click={onRemoveButtonClick}>Remove Key</button>
-  </nav>
+  <section id="actions">
+    <h2>Actions</h2>
+    <nav>
+      <button on:click={onRemoveButtonClick}>Remove Key</button>
+    </nav>
+  </section>
 
-  <form on:submit|preventDefault={onSubmit}>
-    <KeyForm {name} {...$keys[name]} on:input={() => (changed = true)} />
-    <input type="submit" value="Save Changes" disabled={!changed} />
-  </form>
+  <section id="editor">
+    <h2>Edit Key</h2>
+    <form on:submit|preventDefault={onSubmit}>
+      <KeyForm {name} {...$keys[name]} on:input={() => (changed = true)} />
+      <input type="submit" value="Save Changes" disabled={!changed} />
+    </form>
+  </section>
 
   {#if sourcesUsingKey.length > 0}
-    <h2>Stores Using this Key</h2>
-    <ul>
-      {#each sourcesUsingKey as name}
-        <li><Link path={editStore} query={{ name }}>{name}</Link></li>
-      {/each}
-    </ul>
+    <section id="dependencies">
+      <h2>Stores Using this Key</h2>
+      <ul>
+        {#each sourcesUsingKey as name}
+          <li><Link path={editStore} query={{ name }}>{name}</Link></li>
+        {/each}
+      </ul>
+    </section>
   {/if}
 </EnsureKey>

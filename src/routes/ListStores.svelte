@@ -12,11 +12,14 @@
 
 {#await Object.keys($sources) then names}
   {#if names.length > 0}
-    <ul id="list">
-      {#each names as source}
-        <li><Link path={listPasswords} query={{ source }}>{source}</Link></li>
-      {/each}
-    </ul>
+    <section id="list">
+      <h2>Select Store</h2>
+      <ul>
+        {#each names as source}
+          <li><Link path={listPasswords} query={{ source }}>{source}</Link></li>
+        {/each}
+      </ul>
+    </section>
   {:else}
     <p>There are no password stores defined.</p>
   {/if}

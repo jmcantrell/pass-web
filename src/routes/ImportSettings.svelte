@@ -28,11 +28,15 @@
     const content = passphrase ? await decrypt(text, passphrase) : text;
     const data = JSON.parse(content);
 
+    let existingKeys = 0;
+    let existingSources = 0;
+
     const newKeys = {};
 
     if (isPlainObject(data.keys)) {
       for (const [name, value] of Object.entries(data.keys)) {
         newKeys[name] = keySchema.validateSync(value);
+        if ($keys[name]) existingKeys += 1;
       }
     }
 
@@ -43,10 +47,22 @@
     if (isPlainObject(data.sources)) {
       for (const [name, value] of Object.entries(data.sources)) {
         newSources[name] = sourceSchema.validateSync(value, { context: { keys: allKeys } });
+        if ($sources[name]) existingSources += 1;
       }
     }
 
     const newOptions = optionsSchema.validateSync(isPlainObject(data.options) ? data.options : {});
+
+    if (existingKeys > 0 || existingSources > 0) {
+      const existing = [];
+      if (existingKeys > 0) {
+        existing.push(`${existingKeys} ${existingKeys == 1 ? "key" : "keys"}`);
+      }
+      if (existingSources > 0) {
+        existing.push(`${existingSources} ${existingSources == 1 ? "source" : "sources"}`);
+      }
+      if (!confirm(`Overwrite ${existing.join(" and ")}?`)) return;
+    }
 
     $keys = newKeys;
     $sources = newSources;
@@ -58,22 +74,19 @@
 
 <h1>Import Settings</h1>
 
-<p>
-  <strong>NOTE</strong>: Data from the file being imported will be merged with the existing
-  application data. Any key or store names that already exist will be overwritten.
-</p>
-
-<form on:submit|preventDefault={onSubmit}>
-  <fieldset>
-    <legend>Where are the settings stored?</legend>
-    <label>
-      Settings File
-      <input type="file" name="file" required />
-    </label>
-  </fieldset>
-  <fieldset>
-    <legend>Is the file encrypted?</legend>
-    <Password label="Decryption Passphrase" name="passphrase" required={false} />
-  </fieldset>
-  <input type="submit" value="Import Settings File" />
-</form>
+<section id="editor">
+  <form on:submit|preventDefault={onSubmit}>
+    <fieldset>
+      <legend>Where are the settings stored?</legend>
+      <label>
+        Settings File
+        <input type="file" name="file" required />
+      </label>
+    </fieldset>
+    <fieldset>
+      <legend>Is the file encrypted?</legend>
+      <Password label="Decryption Passphrase" name="passphrase" required={false} />
+    </fieldset>
+    <input type="submit" value="Import Settings File" />
+  </form>
+</section>

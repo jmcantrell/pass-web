@@ -33,26 +33,34 @@
 <EnsureStore name={source}>
   <h1>Password Store: {source}</h1>
 
-  <nav id="actions">
-    <button on:click={load}>Refresh List</button>
-    <Link path={addPassword} query={{ source }}>Add Password</Link>
-  </nav>
-
   {#if $listSession.changed}
-    <Message acknowledgement={true} on:acknowledge={() => ($listSession.changed = false)}>
-      This store has been modified recently. It may take a moment for this change to be reflected in
-      the list.
-    </Message>
+    <section id="notifications">
+      <Message acknowledgement={true} on:acknowledge={() => ($listSession.changed = false)}>
+        This store has been modified recently. It may take a moment for this change to be reflected
+        in the list.
+      </Message>
+    </section>
   {/if}
+
+  <section id="actions">
+    <h2>Actions</h2>
+    <nav>
+      <button on:click={load}>Refresh List</button>
+      <Link path={addPassword} query={{ source }}>Add Password</Link>
+    </nav>
+  </section>
 
   {#await fetchList}
     <Loading name="passwords" />
   {:then names}
-    <ul id="list">
-      {#each names as name}
-        <li><Link path={editPassword} query={{ source, name }}>{name}</Link></li>
-      {/each}
-    </ul>
+    <section id="list">
+      <h2>Select Password</h2>
+      <ul>
+        {#each names as name}
+          <li><Link path={editPassword} query={{ source, name }}>{name}</Link></li>
+        {/each}
+      </ul>
+    </section>
   {:catch error}
     <Error>{error}</Error>
   {/await}

@@ -48,13 +48,13 @@
 </script>
 
 <EnsureStore name={source}>
-  <h1>
-    Add Password:
-    <Link path={listPasswords} query={{ source }}>{source}</Link>
-  </h1>
+  <h1>Password Store: <Link path={listPasswords} query={{ source }}>{source}</Link></h1>
 
-  <form on:submit|preventDefault={onSubmit}>
-    <PasswordForm />
-    <input type="submit" value="Add Password" />
-  </form>
+  <section id="editor">
+    <h2>Add Password</h2>
+    <form on:submit|preventDefault={onSubmit}>
+      <PasswordForm />
+      <input type="submit" value="Add Password" />
+    </form>
+  </section>
 </EnsureStore>

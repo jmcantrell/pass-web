@@ -30,15 +30,13 @@
   </p>
 </section>
 
-<section id="security-precautions">
+<section id="security">
   <h2>Security Precautions</h2>
   <p>
     This application deals with highly sensitive information, namely your authentication
     credentials. You <strong>should</strong> be concerned about how this application handles that information.
   </p>
-
   <p>Every attempt is made to handle your information as securely as possible:</p>
-
   <ul>
     <li>All application data is stored locally.</li>
     <li>The only remote communication is to the password store hosts (e.g. {exampleProviders}).</li>
@@ -48,7 +46,6 @@
       By default, password stores are automatically locked when the application loses visibility.
     </li>
   </ul>
-
   <p>
     Feel free to inspect the
     <a target="_blank" href={homepage}>source code</a>. I welcome any input you might have. You can

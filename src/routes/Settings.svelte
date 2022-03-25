@@ -24,42 +24,51 @@
 
 <h1>Settings</h1>
 
-<details class="box">
-  <summary>Cryptography Keys</summary>
-  <ul>
-    {#each Object.keys($keys) as name}
-      <li><Link path={editKey} query={{ name }}>{name}</Link></li>
-    {/each}
-  </ul>
-  <Link path={addKey}>Add Key</Link>
-</details>
+<section id="actions">
+  <h2>Actions</h2>
+  <nav>
+    <Link path={importSettings}>Import Settings</Link>
+    <Link path={exportSettings}>Export Settings</Link>
+  </nav>
+</section>
 
-<details class="box">
-  <summary>Password Stores</summary>
-  <ul>
-    {#each Object.keys($sources) as name}
-      <li><Link path={editStore} query={{ name }}>{name}</Link></li>
-    {/each}
-  </ul>
-  <Link path={addStore}>Add Store</Link>
-</details>
+<section id="keys">
+  <details class="box">
+    <summary>Cryptography Keys</summary>
+    <ul>
+      {#each Object.keys($keys) as name}
+        <li><Link path={editKey} query={{ name }}>{name}</Link></li>
+      {/each}
+    </ul>
+    <Link path={addKey}>Add Key</Link>
+  </details>
+</section>
 
-<details class="box">
-  <summary>Options</summary>
-  <div>
-    {#each Object.entries(optionConfigurators) as [id, { title, default: component }] (id)}
-      <details class="box">
-        <summary>{title}</summary>
-        <div>
-          <svelte:component this={component} />
-        </div>
-      </details>
-    {/each}
-    <button on:click={onResetButtonClick}>Reset to Default</button>
-  </div>
-</details>
+<section id="stores">
+  <details class="box">
+    <summary>Password Stores</summary>
+    <ul>
+      {#each Object.keys($sources) as name}
+        <li><Link path={editStore} query={{ name }}>{name}</Link></li>
+      {/each}
+    </ul>
+    <Link path={addStore}>Add Store</Link>
+  </details>
+</section>
 
-<nav>
-  <Link path={importSettings}>Import Settings</Link>
-  <Link path={exportSettings}>Export Settings</Link>
-</nav>
+<section id="options">
+  <details class="box">
+    <summary>Options</summary>
+    <div>
+      {#each Object.entries(optionConfigurators) as [id, { title, default: component }] (id)}
+        <details class="box">
+          <summary>{title}</summary>
+          <div>
+            <svelte:component this={component} />
+          </div>
+        </details>
+      {/each}
+      <button on:click={onResetButtonClick}>Reset to Default</button>
+    </div>
+  </details>
+</section>

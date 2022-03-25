@@ -19,11 +19,13 @@
 <Locker />
 
 <header>
-  <nav id="menu">
-    <Link path={home}>Home</Link>
-    <Link path={listStores}>Password Stores</Link>
-    <Link path={settings}>Settings</Link>
-  </nav>
+  <section id="menu">
+    <nav>
+      <Link path={home}>Home</Link>
+      <Link path={listStores}>Password Stores</Link>
+      <Link path={settings}>Settings</Link>
+    </nav>
+  </section>
 </header>
 
 <main>

@@ -32,9 +32,12 @@
   }
 </script>
 
-<h1>Add Cryptography Key</h1>
+<h1>Cryptography Keys</h1>
 
-<form on:submit|preventDefault={onSubmit}>
-  <KeyForm />
-  <input type="submit" value="Add Key" />
-</form>
+<section id="editor">
+  <h2>Add Key</h2>
+  <form on:submit|preventDefault={onSubmit}>
+    <KeyForm />
+    <input type="submit" value="Add Key" />
+  </form>
+</section>

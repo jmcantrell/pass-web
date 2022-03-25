@@ -72,27 +72,30 @@
 </script>
 
 <EnsurePassword {source} {name}>
-  <h1>
-    Edit Password:
-    <Link path={listPasswords} query={{ source }}>{source}</Link> / {name}
-  </h1>
+  <h1>Password: <Link path={listPasswords} query={{ source }}>{source}</Link> / {name}</h1>
 
-  <nav id="actions">
-    <button on:click={onDeleteButtonClick}>Delete Password</button>
-    <Link path={renamePassword} query={{ source, name }}>Rename Password</Link>
-    <Link path={duplicatePassword} query={{ source, name }}>Duplicate Password</Link>
-  </nav>
+  <section id="actions">
+    <h2>Actions</h2>
+    <nav>
+      <button on:click={onDeleteButtonClick}>Delete Password</button>
+      <Link path={renamePassword} query={{ source, name }}>Rename Password</Link>
+      <Link path={duplicatePassword} query={{ source, name }}>Duplicate Password</Link>
+    </nav>
+  </section>
 
-  <PassphraseProtected {key}>
-    {#await store.get(name)}
-      <Loading>Fetching and decrypting content...</Loading>
-    {:then entry}
-      <form on:submit|preventDefault={onSubmit}>
-        <PasswordForm {name} {...entry} on:submit={onSubmit} on:input={() => (changed = true)} />
-        <input type="submit" value="Save Changes" disabled={!changed} />
-      </form>
-    {:catch error}
-      <Error>{error}</Error>
-    {/await}
-  </PassphraseProtected>
+  <section id="editor">
+    <h2>Edit Password</h2>
+    <PassphraseProtected {key}>
+      {#await store.get(name)}
+        <Loading>Fetching and decrypting content...</Loading>
+      {:then entry}
+        <form on:submit|preventDefault={onSubmit}>
+          <PasswordForm {name} {...entry} on:submit={onSubmit} on:input={() => (changed = true)} />
+          <input type="submit" value="Save Changes" disabled={!changed} />
+        </form>
+      {:catch error}
+        <Error>{error}</Error>
+      {/await}
+    </PassphraseProtected>
+  </section>
 </EnsurePassword>

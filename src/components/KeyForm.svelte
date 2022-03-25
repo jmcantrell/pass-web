@@ -18,7 +18,6 @@
 
 <fieldset>
   <legend>How will passwords be encrypted?</legend>
-
   <UploadableText
     required
     name="armoredPublicKey"
@@ -31,7 +30,6 @@
 
 <fieldset>
   <legend>How will passwords be decrypted?</legend>
-
   <UploadableText
     required
     name="armoredPrivateKey"
