@@ -3,7 +3,7 @@ import { object, string } from "yup";
 export default object({
   repo: string()
     .required("Repository path is required.")
-    .matches(/^[^/]+\/[^/]+$/, "Invalid repository."),
+    .matches(/^([^/]+\/[^/]+|[0-9]+)$/, "Invalid repository."),
   branch: string().required("Branch is required."),
   token: string()
 }).required();
