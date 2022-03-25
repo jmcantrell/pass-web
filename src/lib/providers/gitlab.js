@@ -3,8 +3,20 @@ import { FetchError } from "@/lib/error";
 const version = "v4";
 const base_url = `https://gitlab.com/api/${version}`;
 
+function parseLinkHeader(text) {
+  return Object.fromEntries(
+    text.split(", ").map((item) => {
+      const split = item.split("; ");
+      return [split[1].slice(5, -1), split[0].slice(1, -1)];
+    })
+  );
+}
+
 export default function ({ repo, branch, token = null }) {
-  async function request(path, payload = {}) {
+  let cachedPaths = null;
+  let cachedPathsTimestamp = null;
+
+  async function request(url, payload = {}) {
     if (!payload.headers) payload.headers = {};
 
     if (token) payload.headers.authorization = `Bearer ${token}`;
@@ -14,23 +26,10 @@ export default function ({ repo, branch, token = null }) {
       payload.body = JSON.stringify(payload.body);
     }
 
-    const response = await fetch(
-      `${base_url}/projects/${encodeURIComponent(repo)}/repository/${path}`,
-      payload
-    );
+    const response = await fetch(url, payload);
     if (!response.ok) throw new FetchError(response);
 
     return response;
-  }
-
-  function parseLinkHeader(text) {
-    return Object.fromEntries(
-      text.split(", ").map((item) => {
-        const split = item.split("; ");
-        const url = new URL(split[0].slice(1, -1));
-        return [split[1].slice(5, -1), "tree" + url.search];
-      })
-    );
   }
 
   async function exhaustPagination(path) {
@@ -45,14 +44,31 @@ export default function ({ repo, branch, token = null }) {
     return Array.prototype.concat(...pages);
   }
 
+  function getProjectURL(path) {
+    return `${base_url}/projects/${encodeURIComponent(repo)}/repository/${path}`;
+  }
+
+  async function lastCommittedAt() {
+    const response = await request(getProjectURL(`commits/${branch}`));
+    const data = await response.json();
+    return new Date(data.created_at);
+  }
+
   async function list() {
-    return (await exhaustPagination(`tree?recursive=1&pagination=keyset&per_page=100`))
-      .filter((node) => node.type == "blob")
-      .map((node) => node.path);
+    const committedAt = await lastCommittedAt();
+    if (!cachedPaths || cachedPathsTimestamp < committedAt) {
+      cachedPaths = (
+        await exhaustPagination(getProjectURL(`tree?recursive=1&pagination=keyset&per_page=100`))
+      )
+        .filter((node) => node.type == "blob")
+        .map((node) => node.path);
+      cachedPathsTimestamp = committedAt;
+    }
+    return cachedPaths;
   }
 
   async function requestPath(path, payload = {}) {
-    return await request(`files/${encodeURIComponent(path)}?ref=${branch}`, payload);
+    return await request(getProjectURL(`files/${encodeURIComponent(path)}?ref=${branch}`), payload);
   }
 
   async function has(path) {
@@ -98,7 +114,7 @@ export default function ({ repo, branch, token = null }) {
   }
 
   async function rename(previous_path, file_path, commit_message) {
-    await request(`commits`, {
+    await request(getProjectURL(`commits`), {
       method: "POST",
       body: {
         branch,
