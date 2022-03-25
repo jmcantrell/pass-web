@@ -1,5 +1,5 @@
 <script context="module">
-  export const path = "keys/add";
+  export const path = "settings/keys/add";
 </script>
 
 <script>

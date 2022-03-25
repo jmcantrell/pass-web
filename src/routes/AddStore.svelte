@@ -1,5 +1,5 @@
 <script context="module">
-  export const path = "stores/add";
+  export const path = "settings/stores/add";
 </script>
 
 <script>
