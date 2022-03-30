@@ -11,7 +11,7 @@ function createNode(text) {
 }
 
 function copyNode(node) {
-  const selection = getSelection();
+  const selection = window.getSelection();
 
   if (selection == null) {
     throw new Error("Unabled to get selection object");

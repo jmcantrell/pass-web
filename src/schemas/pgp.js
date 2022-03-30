@@ -1,14 +1,15 @@
 import { string } from "yup";
 
-function getKeyBlockTag(type, name) {
-  return `-----${type.toUpperCase()} PGP ${name.toUpperCase()} KEY BLOCK-----`;
+export function getTag(where, name) {
+  return `-----${where.toUpperCase()} PGP ${name.toUpperCase()}-----`;
+}
+
+export function getTagRegExp(name) {
+  return new RegExp(`\\s*${getTag("begin", name)}[a-zA-Z0-9+/=\r\n]+${getTag("end", name)}\\s*`);
 }
 
 function createKeySchema(name) {
-  const begin = getKeyBlockTag("begin", name);
-  const end = getKeyBlockTag("end", name);
-  const regex = new RegExp(`\\s*${begin}[a-zA-Z0-9+/=\r\n]+${end}\\s*`);
-  return string().required().matches(regex, `Invalid ${name} key.`);
+  return string().required().matches(getTagRegExp(name), `Invalid ${name} key.`);
 }
 
 export const armoredPublicKey = createKeySchema("public");

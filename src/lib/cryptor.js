@@ -15,7 +15,7 @@ export default function ({ armoredPublicKey, armoredPrivateKey }) {
     return !!decryptionKeys;
   }
 
-  async function lock() {
+  function lock() {
     decryptionKeys = null;
   }
 

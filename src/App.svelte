@@ -7,7 +7,8 @@
   import { path as listStores } from "@/routes/ListStores";
   import { path as settings } from "@/routes/Settings";
 
-  let component, params;
+  let component = null;
+  let params = {};
 </script>
 
 <svelte:head>
