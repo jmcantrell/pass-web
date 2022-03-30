@@ -9,8 +9,9 @@ const packageConfig = JSON.parse(readFileSync(join(projectDir, "package.json")))
 
 export default function ({ mode }) {
   const production = mode == "production";
+  const development = mode == "development";
 
-  return {
+  const config = {
     base: baseUrl,
     root: join(projectDir, "src"),
     build: {
@@ -18,7 +19,7 @@ export default function ({ mode }) {
       emptyOutDir: true,
       sourcemap: true,
       minify: production,
-      chunkSizeWarningLimit: 1024,
+      chunkSizeWarningLimit: 1024
     },
     publicDir: join(projectDir, "public"),
     define: {
@@ -36,14 +37,19 @@ export default function ({ mode }) {
       }
     },
     plugins: [svelte()],
-    clearScreen: false,
-    server: {
+    clearScreen: false
+  };
+
+  if (development) {
+    config.server = {
       host: "0.0.0.0",
       port: 8000,
       https: {
         key: readFileSync(join(projectDir, "localhost-key.pem")),
         cert: readFileSync(join(projectDir, "localhost-cert.pem"))
       }
-    }
-  };
+    };
+  }
+
+  return config;
 }
