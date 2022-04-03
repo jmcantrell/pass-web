@@ -1,2 +1,7 @@
-export * as github from "./github";
-export * as gitlab from "./gitlab";
+import { rootname } from "@/lib/path";
+
+const modules = import.meta.globEager("./*");
+
+export default Object.fromEntries(
+  Object.entries(modules).map(([path, module]) => [rootname(path), module])
+);

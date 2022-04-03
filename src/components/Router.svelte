@@ -1,26 +1,20 @@
 <script>
-  import page from "page";
   import { onMount } from "svelte";
-  import { getHref } from "@/lib/routing";
-  import routes from "@/routes";
+  import { start } from "@/lib/routing";
+  import { convertSearchParamsToObject } from "@/lib/url";
+  import NotFound from "@/components/NotFound";
 
-  export let component, params;
+  export let routes;
 
-  for (const module of Object.values(routes)) {
-    page(getHref(module.path), (context) => {
-      component = module.default;
-      params = context.params || {};
-      const query = new URLSearchParams(context.querystring || "");
-      for (const [name, value] of query) {
-        params[name] = value;
-      }
-    });
-  }
+  let component, params;
 
   onMount(() => {
-    page.start();
-    return () => {
-      page.stop();
-    };
+    return start(routes, NotFound, (route) => {
+      const query = new URLSearchParams(location.search);
+      component = route.component;
+      params = { ...route.params, ...convertSearchParamsToObject(query) };
+    });
   });
 </script>
+
+<svelte:component this={component} {...params} />

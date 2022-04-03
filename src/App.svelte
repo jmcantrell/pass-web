@@ -1,34 +1,18 @@
 <script>
-  import { name } from "@/lib/app";
-  import Link from "@/components/Link";
+  import Menu from "@/components/Menu";
+  import Title from "@/components/Title";
   import Router from "@/components/Router";
   import Locker from "@/components/Locker";
-  import { path as home } from "@/routes/Home";
-  import { path as listStores } from "@/routes/ListStores";
-  import { path as settings } from "@/routes/Settings";
-
-  let component = null;
-  let params = {};
+  import routes from "@/routes";
 </script>
 
-<svelte:head>
-  <title>{name}</title>
-</svelte:head>
-
-<Router bind:component bind:params />
-
+<Title />
 <Locker />
 
 <header>
-  <section id="menu">
-    <nav>
-      <Link path={home}>Home</Link>
-      <Link path={listStores}>Password Stores</Link>
-      <Link path={settings}>Settings</Link>
-    </nav>
-  </section>
+  <Menu />
 </header>
 
 <main>
-  <svelte:component this={component} {...params} />
+  <Router {routes} />
 </main>

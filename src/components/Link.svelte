@@ -1,11 +1,11 @@
 <script>
-  import { getHref } from "@/lib/routing";
+  import { getURI } from "@/lib/routing";
 
   export let path;
-  export let params = {};
   export let query = {};
+  export let params = {};
 
-  $: href = getHref(path, { params, query });
+  $: href = getURI(path, { query, params });
 </script>
 
 <a {href}><slot>{href}</slot></a>

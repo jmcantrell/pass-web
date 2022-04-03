@@ -9,10 +9,10 @@
   import Error from "@/components/Error";
   import Message from "@/components/Message";
   import EnsureStore from "@/components/EnsureStore";
-  import { path as addPassword } from "@/routes/AddPassword";
-  import { path as editPassword } from "@/routes/EditPassword";
   import stores from "@/local/stores";
   import createPageStore from "@/session/pages";
+  import { path as addPassword } from "@/routes/AddPassword";
+  import { path as editPassword } from "@/routes/EditPassword";
 
   export let source;
 

@@ -3,22 +3,21 @@
 </script>
 
 <script>
-  import { name, homepage, bugs } from "@/lib/app";
   import Link from "@/components/Link";
-  import * as providerForms from "@/components/providers";
-  import { path as addKey } from "@/routes/AddKey";
-  import { path as addStore } from "@/routes/AddStore";
+  import providers from "@/components/providers";
   import keys from "@/local/keys";
   import stores from "@/local/stores";
+  import { path as addKey } from "@/routes/AddKey";
+  import { path as addStore } from "@/routes/AddStore";
 
   $: hasKey = Object.keys($keys).length > 0;
   $: hasStore = Object.keys($stores).length > 0;
   $: ready = hasKey && hasStore;
-  $: providerTitles = Object.values(providerForms).map(({ title }) => title);
+  $: providerTitles = Object.values(providers).map(({ title }) => title);
   $: exampleProviders = providerTitles.slice(0, 2).join(" or ");
 </script>
 
-<h1>Welcome to {name}!</h1>
+<h1>Welcome to {process.env.PACKAGE_NAME}!</h1>
 
 <section id="intro">
   <h2>Introduction</h2>
@@ -48,8 +47,8 @@
   </ul>
   <p>
     Feel free to inspect the
-    <a target="_blank" href={homepage}>source code</a>. I welcome any input you might have. You can
-    even host a copy of it on your own server, if you're so inclined.
+    <a target="_blank" href={process.env.PACKAGE_HOMEPAGE}>source code</a>. I welcome any input you
+    might have. You can even host a copy of it on your own server, if you're so inclined.
   </p>
 </section>
 
@@ -94,6 +93,6 @@
   <h2>Problems?</h2>
   <p>
     If you encounter any issues using this application or just have a suggestion,
-    <a target="_blank" href={bugs}>open an issue</a>.
+    <a target="_blank" href={process.env.PACKAGE_BUGS}>open an issue</a>.
   </p>
 </section>

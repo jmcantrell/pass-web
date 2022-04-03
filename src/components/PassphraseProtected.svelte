@@ -1,5 +1,4 @@
 <script>
-  import { setValidity, clearValidity } from "@/lib/form";
   import Password from "@/components/Password";
   import cryptors from "@/local/cryptors";
 
@@ -11,12 +10,13 @@
 
   async function onSubmit(event) {
     const form = event.target;
-    const field = "passphrase";
+    const input = form.elements.passphrase;
 
     try {
-      unlocked = await cryptor.unlock(form.elements[field].value);
+      unlocked = await cryptor.unlock(input.value);
     } catch (error) {
-      setValidity(form, field, error.message);
+      input.setCustomValidity(error.message);
+      input.reportValidity();
     }
 
     form.reset();
@@ -29,7 +29,7 @@
   <form on:submit|preventDefault={onSubmit}>
     <fieldset>
       <legend>Unlock {label}</legend>
-      <Password label="Passphrase for {key}" name="passphrase" on:input={clearValidity} />
+      <Password label="Passphrase for {key}" name="passphrase" />
     </fieldset>
     <input type="submit" value="Verify Passphrase" />
   </form>

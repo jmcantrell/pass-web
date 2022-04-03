@@ -4,16 +4,16 @@
 
 <script>
   import { readMessage, decrypt as decryptWithPGP } from "openpgp";
+  import { isPlainObject } from "@/lib/object";
   import { redirect } from "@/lib/routing";
-  import { isPlainObject } from "@/lib/util";
   import Password from "@/components/Password";
-  import { path as settings } from "@/routes/Settings";
   import keySchema from "@/schemas/key";
   import sourceSchema from "@/schemas/source";
   import optionsSchema from "@/schemas/options";
   import keys from "@/local/keys";
   import sources from "@/local/sources";
   import options from "@/local/options";
+  import { path as settings } from "@/routes/Settings";
 
   async function decrypt(armoredMessage, passwords) {
     const message = await readMessage({ armoredMessage });

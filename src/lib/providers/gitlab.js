@@ -124,5 +124,13 @@ export default function ({ repo, branch, token = null }) {
     });
   }
 
-  return { list, has, get, set, remove, duplicate, rename };
+  return {
+    list,
+    has,
+    get,
+    set,
+    remove,
+    duplicate,
+    rename
+  };
 }

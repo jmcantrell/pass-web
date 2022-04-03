@@ -1,19 +1,19 @@
 <script context="module">
-  export const path = "settings/keys/edit";
+  export const path = "keys/edit";
 </script>
 
 <script>
   import { ValidationError } from "yup";
   import { redirect } from "@/lib/routing";
-  import { formToObject, setValidity } from "@/lib/form";
+  import { convertFormToObject } from "@/lib/form";
   import keySchema from "@/schemas/key";
   import Link from "@/components/Link";
   import KeyForm from "@/components/KeyForm";
   import EnsureKey from "@/components/EnsureKey";
-  import { path as settings } from "@/routes/Settings";
-  import { path as editStore } from "@/routes/EditStore";
   import keys from "@/local/keys";
   import sources from "@/local/sources";
+  import { path as settings } from "@/routes/Settings";
+  import { path as editStore } from "@/routes/EditStore";
 
   export let name;
 
@@ -23,7 +23,7 @@
 
   function onSubmit(event) {
     const form = event.target;
-    const { name: newName, ...data } = formToObject(form);
+    const { name: newName, ...data } = convertFormToObject(form);
 
     const renaming = name != newName;
     const overwriting = renaming && $keys[newName];
@@ -34,7 +34,9 @@
       $keys[newName] = keySchema.validateSync(data);
     } catch (error) {
       if (error instanceof ValidationError) {
-        setValidity(form, error.path, error.message);
+        const input = form.elements[error.path];
+        input.setCustomValidity(error.message);
+        input.reportValidity();
       } else {
         throw error;
       }

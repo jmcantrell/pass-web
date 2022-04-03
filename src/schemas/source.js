@@ -1,8 +1,8 @@
 import { object, string } from "yup";
-import * as providers from "@/lib/providers";
-import * as providerSchemas from "@/schemas/providers";
+import providers from "@/lib/providers";
+import schemas from "@/schemas/providers";
 
-const providerIDs = Object.keys(providers);
+const validProviders = Object.keys(providers);
 
 const validKey = {
   name: "valid-key",
@@ -12,12 +12,11 @@ const validKey = {
 
 export default object({
   key: string().required("Key is required.").test(validKey),
-  provider: string().required("Provider is required.").oneOf(providerIDs, "Invalid provider.")
+  provider: string().required("Provider is required.").oneOf(validProviders, "Invalid provider.")
 })
   .test({
     name: "valid-provider",
     message: "Provider options are invalid.",
-    test: (value, { options }) =>
-      providerSchemas[value.provider].validateSync(value, options.context)
+    test: (value, { options }) => schemas[value.provider].validateSync(value, options.context)
   })
   .required();

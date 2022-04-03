@@ -1,5 +1,5 @@
 <script>
-  export let input;
+  export let input = null;
   export let label = "Password";
   export let name = "password";
   export let value = "";
@@ -20,7 +20,7 @@
       {value}
       {placeholder}
       {required}
-      on:input
+      on:input={(event) => event.target.setCustomValidity("")}
     />
     <button type="button" on:click={() => (visible = !visible)}>{visible ? "Hide" : "Show"}</button>
     <slot name="buttons" />

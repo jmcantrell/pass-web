@@ -1,7 +1,7 @@
 <script>
   import Link from "@/components/Link";
   import NameField from "@/components/NameField";
-  import * as providerForms from "@/components/providers";
+  import providers from "@/components/providers";
   import { path as addKey } from "@/routes/AddKey";
   import keys from "@/local/keys";
 
@@ -43,7 +43,7 @@
     Password Store Provider
     <select required name="provider" bind:value={provider} on:input>
       <option />
-      {#each Object.entries(providerForms) as [id, { title }] (id)}
+      {#each Object.entries(providers) as [id, { title }] (id)}
         <option value={id}>{title}</option>
       {/each}
     </select>
@@ -52,7 +52,7 @@
 
 {#if provider}
   <fieldset>
-    <legend>How can the store be accessed at {providerForms[provider].title}?</legend>
-    <svelte:component this={providerForms[provider].default} {...$$restProps} on:input />
+    <legend>How can the store be accessed at {providers[provider].title}?</legend>
+    <svelte:component this={providers[provider].default} {...$$restProps} on:input />
   </fieldset>
 {/if}

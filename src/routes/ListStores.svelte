@@ -4,8 +4,8 @@
 
 <script>
   import Link from "@/components/Link";
-  import { path as listPasswords } from "@/routes/ListPasswords";
   import sources from "@/local/sources";
+  import { path as listPasswords } from "@/routes/ListPasswords";
 </script>
 
 <h1>Password Stores</h1>

@@ -5,7 +5,7 @@
 <script>
   import { ValidationError } from "yup";
   import { redirect } from "@/lib/routing";
-  import { formToObject, setValidity } from "@/lib/form";
+  import { convertFormToObject } from "@/lib/form";
   import entrySchema from "@/schemas/entry";
   import Link from "@/components/Link";
   import Error from "@/components/Error";
@@ -13,12 +13,13 @@
   import PasswordForm from "@/components/PasswordForm";
   import EnsurePassword from "@/components/EnsurePassword";
   import PassphraseProtected from "@/components/PassphraseProtected";
-  import { path as listPasswords } from "@/routes/ListPasswords";
-  import { path as renamePassword } from "@/routes/RenamePassword";
-  import { path as duplicatePassword } from "@/routes/DuplicatePassword";
   import stores from "@/local/stores";
   import sources from "@/local/sources";
   import createPageStore from "@/session/pages";
+  import { path as editPassword } from "@/routes/EditPassword";
+  import { path as listPasswords } from "@/routes/ListPasswords";
+  import { path as renamePassword } from "@/routes/RenamePassword";
+  import { path as duplicatePassword } from "@/routes/DuplicatePassword";
 
   export let source, name;
 
@@ -30,7 +31,7 @@
 
   async function onSubmit(event) {
     const form = event.target;
-    const { name: newName, ...data } = formToObject(form);
+    const { name: newName, ...data } = convertFormToObject(form);
 
     const renaming = name != newName;
     const overwriting = renaming && (await store.has(newName));
@@ -43,7 +44,9 @@
       entry = entrySchema.validateSync(data);
     } catch (error) {
       if (error instanceof ValidationError) {
-        setValidity(form, error.path, error.message);
+        const input = form.elements[error.path];
+        input.setCustomValidity(error.message);
+        input.reportValidity();
       } else {
         throw error;
       }
@@ -56,7 +59,7 @@
 
     if (renaming) {
       await store.remove(name);
-      redirect(path, { query: { source, name: newName } });
+      redirect(editPassword, { query: { source, name: newName } });
       return;
     }
 

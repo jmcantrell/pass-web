@@ -1,5 +1,4 @@
-.env
-.envrc
+.env*
 *.pem
 build
 coverage

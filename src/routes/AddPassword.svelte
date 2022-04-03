@@ -5,15 +5,15 @@
 <script>
   import { ValidationError } from "yup";
   import { redirect } from "@/lib/routing";
-  import { formToObject, setValidity } from "@/lib/form";
+  import { convertFormToObject } from "@/lib/form";
   import Link from "@/components/Link";
   import EnsureStore from "@/components/EnsureStore";
   import PasswordForm from "@/components/PasswordForm";
-  import { path as editPassword } from "@/routes/EditPassword";
-  import { path as listPasswords } from "@/routes/ListPasswords";
   import entrySchema from "@/schemas/entry";
   import stores from "@/local/stores";
   import createPageStore from "@/session/pages";
+  import { path as editPassword } from "@/routes/EditPassword";
+  import { path as listPasswords } from "@/routes/ListPasswords";
 
   export let source;
 
@@ -22,7 +22,7 @@
 
   async function onSubmit(event) {
     const form = event.target;
-    const { name, ...data } = formToObject(form);
+    const { name, ...data } = convertFormToObject(form);
 
     let entry;
 
@@ -30,7 +30,9 @@
       entry = entrySchema.validateSync(data);
     } catch (error) {
       if (error instanceof ValidationError) {
-        setValidity(form, error.path, error.message);
+        const input = form.elements[error.path];
+        input.setCustomValidity(error.message);
+        input.reportValidity();
       } else {
         throw error;
       }

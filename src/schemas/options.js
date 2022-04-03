@@ -2,8 +2,8 @@ import { object, string, boolean, number, array } from "yup";
 import { classes } from "@/lib/pwgen";
 import { enums, config } from "openpgp";
 
-const classIDs = Object.keys(classes);
-const classSchema = string().oneOf(classIDs);
+const validClasses = Object.keys(classes);
+const classSchema = string().oneOf(validClasses);
 
 export default object({
   crypto: object({
@@ -20,6 +20,6 @@ export default object({
   }),
   pwgen: object({
     length: number().required().min(0).truncate().default(16),
-    classes: array().required().of(classSchema).default(classIDs)
+    classes: array().required().of(classSchema).default(validClasses)
   })
-});
+}).required();

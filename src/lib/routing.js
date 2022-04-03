@@ -1,38 +1,45 @@
-import page from "page";
-import { baseUrl } from "@/lib/app";
+import navaid from "navaid";
+import rsort from "route-sort";
+import { inject } from "regexparam";
+import { stripStart, stripEnd } from "@/lib/string";
+import { convertObjectToSearchParams } from "@/lib/url";
 
-export function objectToQuery(object = {}) {
-  const params = new URLSearchParams();
-  for (const [key, values] of Object.entries(object)) {
-    if (Array.isArray(values)) {
-      for (const value of values) {
-        params.append(key, value);
-      }
-    } else {
-      params.append(key, values);
-    }
+let router;
+
+const baseUrl = import.meta.env.BASE_URL;
+
+export const start = (routes, fallback, set) => {
+  router = navaid(baseUrl, (uri) => {
+    set({
+      component: fallback,
+      params: { name: "Page", value: uri }
+    });
+  });
+
+  for (const path of rsort(Object.keys(routes))) {
+    router.on(path, (params) => {
+      set({ component: routes[path], params });
+    });
   }
-  return params;
+
+  router.listen();
+
+  return () => {
+    router.unlisten();
+  };
+};
+
+export function getURI(path, options = {}) {
+  path = inject(path, options.params || {});
+  path = stripEnd(baseUrl, "/") + "/" + stripStart(path, "/");
+  const query = convertObjectToSearchParams(options.query || {}).toString();
+  return `${path}${query ? "?" + query : ""}`;
 }
 
-export function ensureQueryIsURLSearchParams(options = {}) {
-  if (options.query && !(options.query instanceof URLSearchParams)) {
-    options.query = objectToQuery(options.query);
-  }
-  return options;
-}
+export const navigate = (path, options = {}) => {
+  router.route(getURI(path, options));
+};
 
-export function getHref(path, options = {}) {
-  options = ensureQueryIsURLSearchParams(options);
-  const href = typeof path == "function" ? path(options) : path;
-  const query = options.query ? options.query.toString() : "";
-  return baseUrl + (query ? `${href}?${query}` : href);
-}
-
-export function navigate(path, options = {}) {
-  return page(getHref(path, ensureQueryIsURLSearchParams(options)));
-}
-
-export function redirect(path, options = {}) {
-  return page.redirect(getHref(path, ensureQueryIsURLSearchParams(options)));
-}
+export const redirect = (path, options = {}) => {
+  router.route(getURI(path, options), true);
+};

@@ -4,16 +4,16 @@
 
 <script>
   import Link from "@/components/Link";
-  import * as optionConfigurators from "@/components/options";
+  import optionConfigurators from "@/components/options";
+  import keys from "@/local/keys";
+  import sources from "@/local/sources";
+  import options from "@/local/options";
   import { path as addKey } from "@/routes/AddKey";
   import { path as editKey } from "@/routes/EditKey";
   import { path as addStore } from "@/routes/AddStore";
   import { path as editStore } from "@/routes/EditStore";
   import { path as importSettings } from "@/routes/ImportSettings";
   import { path as exportSettings } from "@/routes/ExportSettings";
-  import keys from "@/local/keys";
-  import sources from "@/local/sources";
-  import options from "@/local/options";
 
   function onResetButtonClick() {
     if (confirm("Reset settings to default values?")) {
@@ -60,7 +60,7 @@
   <details class="box">
     <summary>Options</summary>
     <div>
-      {#each Object.entries(optionConfigurators) as [id, { title, default: component }] (id)}
+      {#each optionConfigurators as { title, default: component }}
         <details class="box">
           <summary>{title}</summary>
           <div>

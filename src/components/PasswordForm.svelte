@@ -7,7 +7,9 @@
   import PasswordGeneratorForm from "@/components/PasswordGeneratorForm";
   import options from "@/local/options";
 
-  export let name, password, extra;
+  export let name = "";
+  export let password = "";
+  export let extra = "";
 
   let input;
   let visible = false;
@@ -32,7 +34,7 @@
 
 <fieldset>
   <legend>Where would you like this password stored?</legend>
-  <NameField required label="Password Name" {name} on:input />
+  <NameField required label="Password Name" value={name} pattern="[^/]+" on:input />
 </fieldset>
 
 <fieldset>

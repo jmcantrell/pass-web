@@ -1,4 +1,4 @@
-export function formToObject(form) {
+export function convertFormToObject(form) {
   const object = {};
   const formData = new FormData(form);
   const names = new Set(formData.keys());
@@ -10,14 +10,4 @@ export function formToObject(form) {
   }
 
   return object;
-}
-
-export function setValidity(form, name, message) {
-  const input = form.elements[name];
-  input.setCustomValidity(message);
-  input.reportValidity();
-}
-
-export function clearValidity(event) {
-  event.target.setCustomValidity("");
 }

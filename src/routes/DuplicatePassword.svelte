@@ -7,10 +7,10 @@
   import Link from "@/components/Link";
   import NameField from "@/components/NameField";
   import EnsurePassword from "@/components/EnsurePassword";
-  import { path as editPassword } from "@/routes/EditPassword";
-  import { path as listPasswords } from "@/routes/ListPasswords";
   import stores from "@/local/stores";
   import createPageStore from "@/session/pages";
+  import { path as editPassword } from "@/routes/EditPassword";
+  import { path as listPasswords } from "@/routes/ListPasswords";
 
   export let source, name;
 

@@ -4,7 +4,6 @@
 
 <script>
   import { createMessage, encrypt as encryptWithPGP } from "openpgp";
-  import { name, version } from "@/lib/app";
   import Password from "@/components/Password";
   import keys from "@/local/keys";
   import sources from "@/local/sources";
@@ -25,7 +24,7 @@
     const form = event.target;
     const passphrase = form.elements.passphrase.value;
     const text = JSON.stringify({
-      version,
+      version: process.env.PACKAGE_VERSION,
       keys: $keys,
       sources: $sources,
       options: $options

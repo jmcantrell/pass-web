@@ -8,9 +8,9 @@ export function getTagRegExp(name) {
   return new RegExp(`\\s*${getTag("begin", name)}[a-zA-Z0-9+/=\r\n]+${getTag("end", name)}\\s*`);
 }
 
-function createKeySchema(name) {
-  return string().required().matches(getTagRegExp(name), `Invalid ${name} key.`);
+function createArmorSchema(name) {
+  return string().required().matches(getTagRegExp(name), `Invalid ${name}.`);
 }
 
-export const armoredPublicKey = createKeySchema("public");
-export const armoredPrivateKey = createKeySchema("private");
+export const armoredPublicKey = createArmorSchema("public key block");
+export const armoredPrivateKey = createArmorSchema("private key block");
