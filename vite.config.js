@@ -21,21 +21,21 @@ export default function ({ mode }) {
     resolve: {
       extensions: [".js", ".svelte"],
       alias: {
-        "@": join(__dirname, "src")
-      }
+        "@": join(__dirname, "src"),
+      },
     },
     build: {
       outDir: join(__dirname, "build"),
       emptyOutDir: true,
       sourcemap: true,
       minify: production,
-      chunkSizeWarningLimit: 1024
+      chunkSizeWarningLimit: 1024,
     },
     css: {
-      devSourcemap: true
+      devSourcemap: true,
     },
     plugins: [svelte(), dynamicImport()],
-    clearScreen: false
+    clearScreen: false,
   };
 
   if (development) {
@@ -44,8 +44,8 @@ export default function ({ mode }) {
       port: 8000,
       https: {
         key: readFileSync(join(__dirname, "localhost-key.pem")),
-        cert: readFileSync(join(__dirname, "localhost-cert.pem"))
-      }
+        cert: readFileSync(join(__dirname, "localhost-cert.pem")),
+      },
     };
   }
 

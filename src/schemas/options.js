@@ -11,15 +11,15 @@ export default object({
       algorithm: number()
         .oneOf(Object.values(enums.compression))
         .default(enums.compression.uncompressed),
-      level: number().min(1).max(9).default(config.deflateLevel)
-    })
+      level: number().min(1).max(9).default(config.deflateLevel),
+    }),
   }),
   locker: object({
     enabled: boolean().required().default(true),
-    timeout: number().required().default(45)
+    timeout: number().required().default(45),
   }),
   pwgen: object({
     length: number().required().min(0).truncate().default(16),
-    classes: array().required().of(classSchema).default(validClasses)
-  })
+    classes: array().required().of(classSchema).default(validClasses),
+  }),
 }).required();

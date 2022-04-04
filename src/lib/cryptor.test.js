@@ -1,25 +1,23 @@
 import { test, describe, expect, beforeAll, beforeEach } from "vitest";
 import { generateKey } from "openpgp";
-import { getTagRegExp } from "@/schemas/pgp";
+import { getBlockRegExp } from "@/schemas/pgp";
 import createCryptor from "./cryptor";
 
-let armoredPublicKey, armoredPrivateKey, cryptor;
+let key, cryptor;
 const passphrase = "test";
 const userIDs = [{ name: "Jane Smith", email: "jane@domain.org" }];
 
 const errorInvalidMessage = "Misformed armored text";
 const errorNoKey = "Error decrypting message: No key or password specified";
 const errorIncorrectPassphrase = "Error decrypting private key: Incorrect key passphrase";
-const regexpEncryptedMessage = getTagRegExp("message");
+const encryptedMessageRegExp = getBlockRegExp("message");
 
 beforeAll(async () => {
-  const key = await generateKey({ userIDs, passphrase });
-  armoredPublicKey = key.publicKey;
-  armoredPrivateKey = key.privateKey;
+  key = await generateKey({ userIDs, passphrase });
 });
 
 beforeEach(async () => {
-  cryptor = await createCryptor({ armoredPublicKey, armoredPrivateKey });
+  cryptor = await createCryptor(key);
 });
 
 test("should refuse to decrypt an invalid message", async () => {
@@ -28,7 +26,7 @@ test("should refuse to decrypt an invalid message", async () => {
 
 test("should encrypt text", async () => {
   const message = await cryptor.encrypt("test");
-  expect(message).toEqual(expect.stringMatching(regexpEncryptedMessage));
+  expect(message).toEqual(expect.stringMatching(encryptedMessageRegExp));
 });
 
 describe("while locked", () => {

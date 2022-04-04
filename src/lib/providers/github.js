@@ -64,14 +64,14 @@ export default function ({ repo, branch, token = null }) {
   async function createTree(tree) {
     return await request(`git/trees`, {
       method: "POST",
-      body: { tree }
+      body: { tree },
     });
   }
 
   async function createCommit(tree, message) {
     return await request(`git/commits`, {
       method: "POST",
-      body: { message, tree, parents: [await getHeadSHA()] }
+      body: { message, tree, parents: [await getHeadSHA()] },
     });
   }
 
@@ -99,8 +99,8 @@ export default function ({ repo, branch, token = null }) {
       body: {
         message,
         content: btoa(text),
-        sha: await getPathSHA(path)
-      }
+        sha: await getPathSHA(path),
+      },
     });
   }
 
@@ -109,8 +109,8 @@ export default function ({ repo, branch, token = null }) {
       method: "DELETE",
       body: {
         message,
-        sha: await getPathSHA(path)
-      }
+        sha: await getPathSHA(path),
+      },
     });
   }
 
@@ -132,6 +132,6 @@ export default function ({ repo, branch, token = null }) {
     set,
     remove,
     duplicate,
-    rename
+    rename,
   };
 }

@@ -5,5 +5,5 @@ export default object({
     .required("Repository path is required.")
     .matches(/^[^/]+\/[^/]+$/, "Invalid repository."),
   branch: string().required("Branch is required."),
-  token: string()
+  token: string(),
 }).required();

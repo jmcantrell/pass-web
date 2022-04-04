@@ -94,8 +94,8 @@ export default function ({ repo, branch, token = null }) {
       body: {
         branch,
         commit_message,
-        content
-      }
+        content,
+      },
     });
   }
 
@@ -104,8 +104,8 @@ export default function ({ repo, branch, token = null }) {
       method: "DELETE",
       body: {
         branch,
-        commit_message
-      }
+        commit_message,
+      },
     });
   }
 
@@ -119,8 +119,8 @@ export default function ({ repo, branch, token = null }) {
       body: {
         branch,
         commit_message,
-        actions: [{ action: "move", file_path, previous_path }]
-      }
+        actions: [{ action: "move", file_path, previous_path }],
+      },
     });
   }
 
@@ -131,6 +131,6 @@ export default function ({ repo, branch, token = null }) {
     set,
     remove,
     duplicate,
-    rename
+    rename,
   };
 }

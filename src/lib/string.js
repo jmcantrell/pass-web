@@ -1,9 +1,11 @@
 export function stripStart(s, prefix) {
-  return s.startsWith(prefix) ? s.slice(prefix.length) : s;
+  while (s.startsWith(prefix)) s = s.slice(prefix.length);
+  return s;
 }
 
 export function stripEnd(s, suffix) {
-  return s.endsWith(suffix) ? s.slice(0, -suffix.length) : s;
+  while (s.endsWith(suffix)) s = s.slice(0, -suffix.length);
+  return s;
 }
 
 export function strip(s, text) {

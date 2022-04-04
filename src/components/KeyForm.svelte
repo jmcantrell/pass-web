@@ -2,7 +2,7 @@
   import NameField from "@/components/NameField";
   import UploadableText from "@/components/UploadableText";
 
-  export let name, armoredPublicKey, armoredPrivateKey;
+  export let name, publicKey, privateKey;
 </script>
 
 <fieldset>
@@ -20,9 +20,9 @@
   <legend>How will passwords be encrypted?</legend>
   <UploadableText
     required
-    name="armoredPublicKey"
+    name="publicKey"
     label="Armored Public Key"
-    bind:value={armoredPublicKey}
+    bind:value={publicKey}
     placeholder="required"
     on:input
   />
@@ -32,9 +32,9 @@
   <legend>How will passwords be decrypted?</legend>
   <UploadableText
     required
-    name="armoredPrivateKey"
+    name="privateKey"
     label="Armored Private Key"
-    bind:value={armoredPrivateKey}
+    bind:value={privateKey}
     placeholder="required"
     on:input
   />

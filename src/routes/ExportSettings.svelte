@@ -27,7 +27,7 @@
       version: process.env.PACKAGE_VERSION,
       keys: $keys,
       sources: $sources,
-      options: $options
+      options: $options,
     });
     const extension = passphrase ? "asc" : "json";
     const type = passphrase ? "text/plain" : "application/json";

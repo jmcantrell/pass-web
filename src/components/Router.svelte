@@ -1,6 +1,6 @@
 <script>
   import { onMount } from "svelte";
-  import { start } from "@/lib/routing";
+  import { start } from "@/lib/router";
   import { convertSearchParamsToObject } from "@/lib/url";
   import NotFound from "@/components/NotFound";
 

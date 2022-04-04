@@ -4,7 +4,7 @@
 
 <script>
   import { ValidationError } from "yup";
-  import { redirect } from "@/lib/routing";
+  import { redirect } from "@/lib/router";
   import { convertFormToObject } from "@/lib/form";
   import entrySchema from "@/schemas/entry";
   import Link from "@/components/Link";

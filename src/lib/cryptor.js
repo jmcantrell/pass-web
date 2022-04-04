@@ -5,10 +5,10 @@ import {
   readMessage,
   createMessage,
   encrypt as encryptWithPGP,
-  decrypt as decryptWithPGP
+  decrypt as decryptWithPGP,
 } from "openpgp";
 
-export default function ({ armoredPublicKey, armoredPrivateKey }) {
+export default function ({ publicKey, privateKey }) {
   let encryptionKeys, decryptionKeys;
 
   function isUnlocked() {
@@ -20,14 +20,16 @@ export default function ({ armoredPublicKey, armoredPrivateKey }) {
   }
 
   async function unlock(passphrase) {
-    const privateKey = await readPrivateKey({ armoredKey: armoredPrivateKey });
-    decryptionKeys = await decryptKey({ privateKey, passphrase });
+    decryptionKeys = await decryptKey({
+      privateKey: await readPrivateKey({ armoredKey: privateKey }),
+      passphrase,
+    });
     return isUnlocked();
   }
 
   async function encrypt(text) {
     if (!encryptionKeys) {
-      encryptionKeys = await readKey({ armoredKey: armoredPublicKey });
+      encryptionKeys = await readKey({ armoredKey: publicKey });
     }
     const message = await createMessage({ text });
     return await encryptWithPGP({ message, encryptionKeys });

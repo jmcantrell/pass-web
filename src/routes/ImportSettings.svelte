@@ -5,7 +5,7 @@
 <script>
   import { readMessage, decrypt as decryptWithPGP } from "openpgp";
   import { isPlainObject } from "@/lib/object";
-  import { redirect } from "@/lib/routing";
+  import { redirect } from "@/lib/router";
   import Password from "@/components/Password";
   import keySchema from "@/schemas/key";
   import sourceSchema from "@/schemas/source";

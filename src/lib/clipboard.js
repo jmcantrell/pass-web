@@ -30,10 +30,6 @@ export async function copy(text) {
     return;
   }
 
-  if (!document.body) {
-    return;
-  }
-
   const node = createNode(text);
   document.body.appendChild(node);
 

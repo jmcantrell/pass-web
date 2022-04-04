@@ -3,7 +3,7 @@
 </script>
 
 <script>
-  import { redirect } from "@/lib/routing";
+  import { redirect } from "@/lib/router";
   import Link from "@/components/Link";
   import NameField from "@/components/NameField";
   import EnsurePassword from "@/components/EnsurePassword";
