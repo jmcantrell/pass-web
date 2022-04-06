@@ -5,12 +5,16 @@ export const classes = {
   punct: { name: "punctuation characters", value: "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~'" },
 };
 
-export default function (options = {}) {
-  const result = Array(options.length);
-  const pool = options.classes.map((type) => classes[type].value).join("");
+export default function (length, classNames = Object.keys(classes)) {
+  const result = new Array(length);
 
-  for (let i = 0; i < result.length; i++) {
-    result[i] = pool[Math.floor(Math.random() * pool.length)];
+  const rand = new Uint32Array(length);
+  crypto.getRandomValues(rand);
+
+  const pool = classNames.map((name) => classes[name].value).join("");
+
+  for (let i = 0; i < length; i++) {
+    result[i] = pool[rand[i] % pool.length];
   }
 
   return result.join("");

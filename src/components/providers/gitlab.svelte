@@ -32,9 +32,10 @@
 
 <Password
   label="Access Token"
+  required
   name="token"
   bind:value={token}
-  placeholder="required for private repos"
+  placeholder="required"
   on:input
 >
   <a target="_blank" href="https://gitlab.com/-/profile/personal_access_tokens">

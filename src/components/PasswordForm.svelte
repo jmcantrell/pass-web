@@ -27,7 +27,7 @@
   }
 
   function onGenerateButtonClick() {
-    password = pwgen({ length, classes });
+    password = pwgen(length, classes);
     input.dispatchEvent(new Event("input"));
   }
 </script>

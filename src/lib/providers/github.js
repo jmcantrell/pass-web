@@ -1,22 +1,21 @@
 import { FetchError } from "@/lib/error";
 
-const base_url = "https://api.github.com";
-const version = "v3";
+export const baseURL = "https://api.github.com";
+export const version = "v3";
 
-export default function ({ repo, branch, token = null }) {
+export default function ({ repo, branch, token }) {
   async function request(path, payload = {}) {
     if (!payload.headers) payload.headers = {};
 
     payload.headers.accept = `application/vnd.github.${version}+json`;
-
-    if (token) payload.headers.authorization = `token ${token}`;
+    payload.headers.authorization = `token ${token}`;
 
     if (payload.body) {
       payload.body = JSON.stringify(payload.body);
       payload.headers["content-type"] = "application/json";
     }
 
-    const response = await fetch(`${base_url}/repos/${repo}/${path}`, payload);
+    const response = await fetch(`${baseURL}/repos/${repo}/${path}`, payload);
     if (!response.ok) throw new FetchError(response);
 
     return await response.json();
@@ -52,15 +51,6 @@ export default function ({ repo, branch, token = null }) {
     );
   }
 
-  async function getSanitizedTree(callback = () => {}) {
-    return (await getTreeRecursive()).map((node) => {
-      callback(node);
-      delete node.url;
-      delete node.size;
-      return node;
-    });
-  }
-
   async function createTree(tree) {
     return await request(`git/trees`, {
       method: "POST",
@@ -73,12 +63,6 @@ export default function ({ repo, branch, token = null }) {
       method: "POST",
       body: { message, tree, parents: [await getHeadSHA()] },
     });
-  }
-
-  async function addCommit(tree, message) {
-    const { sha } = await createTree(tree);
-    const commit = await createCommit(sha, message);
-    await setHeadSHA(commit.sha);
   }
 
   async function list() {
@@ -119,10 +103,23 @@ export default function ({ repo, branch, token = null }) {
   }
 
   async function rename(from, to, message) {
-    const tree = await getSanitizedTree((node) => {
+    const tree = await getTreeRecursive();
+    const newTree = [];
+
+    for (const node of tree) {
+      delete node.url;
+      delete node.size;
+      if (node.path != to) newTree.push(node);
+    }
+
+    for (const node of newTree) {
       if (node.path == from) node.path = to;
-    });
-    await addCommit(tree, message);
+    }
+
+    const { sha } = await createTree(newTree);
+    const commit = await createCommit(sha, message);
+
+    await setHeadSHA(commit.sha);
   }
 
   return {

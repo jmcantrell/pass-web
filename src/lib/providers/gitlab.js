@@ -1,7 +1,8 @@
 import { FetchError } from "@/lib/error";
 
-const version = "v4";
-const base_url = `https://gitlab.com/api/${version}`;
+export const version = "v4";
+export const baseURL = `https://gitlab.com/api/${version}`;
+export const maxPerPage = 100;
 
 function parseLinkHeader(text) {
   return Object.fromEntries(
@@ -12,14 +13,14 @@ function parseLinkHeader(text) {
   );
 }
 
-export default function ({ repo, branch, token = null }) {
+export default function ({ repo, branch, token }) {
   let cachedPaths = null;
   let cachedPathsTimestamp = null;
 
   async function request(url, payload = {}) {
     if (!payload.headers) payload.headers = {};
 
-    if (token) payload.headers.authorization = `Bearer ${token}`;
+    payload.headers.authorization = `Bearer ${token}`;
 
     if (payload.body) {
       payload.headers["content-type"] = "application/json";
@@ -45,7 +46,7 @@ export default function ({ repo, branch, token = null }) {
   }
 
   function getProjectURL(path) {
-    return `${base_url}/projects/${encodeURIComponent(repo)}/repository/${path}`;
+    return `${baseURL}/projects/${encodeURIComponent(repo)}/repository/${path}`;
   }
 
   async function lastCommittedAt() {
@@ -58,7 +59,9 @@ export default function ({ repo, branch, token = null }) {
     const committedAt = await lastCommittedAt();
     if (!cachedPaths || cachedPathsTimestamp < committedAt) {
       cachedPaths = (
-        await exhaustPagination(getProjectURL(`tree?recursive=1&pagination=keyset&per_page=100`))
+        await exhaustPagination(
+          getProjectURL(`tree?recursive=1&pagination=keyset&per_page=${maxPerPage}`)
+        )
       )
         .filter((node) => node.type == "blob")
         .map((node) => node.path);
@@ -93,8 +96,8 @@ export default function ({ repo, branch, token = null }) {
       method: (await has(path)) ? "PUT" : "POST",
       body: {
         branch,
-        commit_message,
         content,
+        commit_message,
       },
     });
   }
