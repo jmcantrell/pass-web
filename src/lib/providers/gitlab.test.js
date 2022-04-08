@@ -1,5 +1,4 @@
 import { vi, describe, test, expect, beforeEach } from "vitest";
-import { FetchError } from "@/lib/error";
 import { default as createProvider, baseURL, maxPerPage } from "./gitlab";
 
 global.fetch = vi.fn();
@@ -9,66 +8,17 @@ const repo = "user/project";
 const branch = "main";
 const token = "fake token";
 
-function queueFetchSuccess(response = {}) {
-  const json = response.json || {};
-  response.ok = true;
-  response.json = async () => json;
-  response.headers = new Map(Object.entries(response.headers || {}));
-  global.fetch.mockImplementationOnce(async () => response);
-}
-
-function queueFetchError(response = {}) {
-  response.ok = false;
-  global.fetch.mockImplementationOnce(async () => response);
-}
+const pathCommits = "commits";
+const pathCommitsBranch = `commits/${branch}`;
+const pathTreeRecursive = `tree?recursive=1&pagination=keyset&per_page=${maxPerPage}`;
+const pathFiles = (path) => `files/${encodeURIComponent(path)}?ref=${branch}`;
 
 function getRequestURL(path) {
   return `${baseURL}/projects/${encodeURIComponent(repo)}/repository/${path}`;
 }
 
-function expectFetch(expectedPath, expectedPayload = {}) {
-  const [url, payload] = global.fetch.calls.shift();
-  expect(url).toBe(getRequestURL(expectedPath));
-  if (!expectedPayload.headers) expectedPayload.headers = {};
-  expectedPayload.headers.authorization = `Bearer ${token}`;
-  if (expectedPayload.body) {
-    expectedPayload.headers["content-type"] = "application/json";
-    expectedPayload.body = JSON.stringify(expectedPayload.body);
-  }
-  expect(payload).toEqual(expectedPayload);
-}
-
-function expectFetchFiles(expectedPath, expectedPayload = {}) {
-  expectFetch(`files/${encodeURIComponent(expectedPath)}?ref=${branch}`, expectedPayload);
-}
-
-function expectFetchTree(expectedPayload = {}) {
-  expectFetch(`tree?recursive=1&pagination=keyset&per_page=${maxPerPage}`, expectedPayload);
-}
-
-function expectFetchCommits(expectedPayload = {}) {
-  expectFetch(`commits/${branch}`, expectedPayload);
-}
-
-async function expectFetchError(promise, response) {
-  await expect(promise).rejects.toThrow(new FetchError(response));
-}
-
-function testFetchError(callback) {
-  test("should throw a fetch error if response is not ok", async () => {
-    const response = { status: 400, statusText: "oops" };
-    queueFetchError(response);
-    await expectFetchError(callback(), response);
-  });
-}
-
-beforeEach(() => {
-  global.fetch.mockReset();
-  provider = createProvider({ repo, branch, token });
-});
-
-function getLinkHeader(page, total) {
-  const getFakeURL = (n) => getRequestURL(`fake?page=${n}`);
+function getLinkHeader(path, page, total) {
+  const getFakeURL = (n) => getRequestURL(`${path}&page=${n}`);
   const getFakePart = (n, key) => `<${getFakeURL(n)}>; rel="${key}"`;
 
   const parts = [getFakePart(1, "first"), getFakePart(total, "last")];
@@ -79,100 +29,142 @@ function getLinkHeader(page, total) {
   return parts.join(", ");
 }
 
+function expectNextFetch(path, options = {}) {
+  if (!options.request) options.request = {};
+  if (!options.response) options.response = {};
+
+  if (!options.request.headers) options.request.headers = {};
+  options.request.headers.authorization = `Bearer ${token}`;
+
+  if (options.request.body) {
+    options.request.headers["content-type"] = "application/json";
+    options.request.body = JSON.stringify(options.request.body);
+  }
+
+  if (!options.response.status) options.response.status = 200;
+
+  options.response.ok = options.response.status < 400;
+
+  if (!options.response.statusText) options.response.statusText = "fake message";
+
+  const json = options.response.json || {};
+  if (json.content) json.content = btoa(json.content);
+  options.response.json = async () => json;
+
+  if (!options.response.headers) options.response.headers = {};
+
+  if (options.response.headers.link) {
+    const { page, total } = options.response.headers.link;
+    options.response.headers.link = getLinkHeader(path, page, total);
+    if (page > 1) path = `${path}&page=${page}`;
+  }
+
+  options.response.headers = new Map(Object.entries(options.response.headers));
+
+  global.fetch.mockImplementationOnce(async (url, request) => {
+    expect(url).toBe(getRequestURL(path));
+    expect(request).toEqual(options.request);
+    return options.response;
+  });
+}
+
+beforeEach(() => {
+  global.fetch.mockReset();
+  provider = createProvider({ repo, branch, token });
+});
+
 describe("list", () => {
   test("should return every path recursively", async () => {
-    queueFetchSuccess({ json: { created_at: "2000-01-01T00:00:00" } });
-    queueFetchSuccess({
-      headers: { link: getLinkHeader(1, 1) },
-      json: [
-        { path: "file.txt", type: "blob" },
-        { path: "ignored", type: "not-blob" }, // and skip nodes that are not blobs
-        { path: "password.gpg", type: "blob" },
-        { path: "site/username.gpg", type: "blob" },
-      ],
+    expectNextFetch(pathCommitsBranch, {
+      response: { json: { created_at: "2000-01-01T00:00:00" } },
+    });
+    expectNextFetch(pathTreeRecursive, {
+      response: {
+        headers: { link: { page: 1, total: 1 } },
+        json: [
+          { path: "file.txt", type: "blob" },
+          { path: "ignored", type: "not-blob" }, // and skip nodes that are not blobs
+          { path: "password.gpg", type: "blob" },
+          { path: "site/username.gpg", type: "blob" },
+        ],
+      },
     });
     expect(await provider.list()).toEqual(["file.txt", "password.gpg", "site/username.gpg"]);
-    expectFetchCommits();
-    expectFetchTree();
   });
 
   test("should get every page available", async () => {
     const total = 10;
     const expectedResult = [];
-    queueFetchSuccess({ json: { created_at: "2000-01-01T00:00:00" } });
+    expectNextFetch(pathCommitsBranch, {
+      response: { json: { created_at: "2000-01-01T00:00:00" } },
+    });
     for (let i = 0; i < total; i++) {
-      const json = [];
+      const tree = [];
       for (let j = 0; j < maxPerPage; j++) {
         const path = `file${i * maxPerPage + j + 1}.gpg`;
-        json.push({ path, type: "blob" });
+        tree.push({ path, type: "blob" });
         expectedResult.push(path);
       }
-      queueFetchSuccess({ headers: { link: getLinkHeader(i + 1, total) }, json });
+      expectNextFetch(pathTreeRecursive, {
+        response: {
+          headers: { link: { page: i + 1, total } },
+          json: tree,
+        },
+      });
     }
     expect(await provider.list()).toEqual(expectedResult);
-    expectFetchCommits();
-    expectFetchTree();
-    for (let page = 2; page <= total; page++) {
-      expectFetch(`fake?page=${page}`);
-    }
   });
 
   test("should use cached list if nothing committed since last fetch", async () => {
     let created_at = "2000-01-01T00:00:00";
-    queueFetchSuccess({ json: { created_at } });
-    queueFetchSuccess({
-      headers: { link: getLinkHeader(1, 1) },
-      json: [
-        { path: "file.txt", type: "blob" },
-        { path: "ignored", type: "not-blob" }, // and skip nodes that are not blobs
-        { path: "password.gpg", type: "blob" },
-        { path: "site/username.gpg", type: "blob" },
-      ],
+    expectNextFetch(pathCommitsBranch, { response: { json: { created_at } } });
+    expectNextFetch(pathTreeRecursive, {
+      response: {
+        headers: { link: { page: 1, total: 1 } },
+        json: [
+          { path: "file.txt", type: "blob" },
+          { path: "ignored", type: "not-blob" }, // and skip nodes that are not blobs
+          { path: "password.gpg", type: "blob" },
+          { path: "site/username.gpg", type: "blob" },
+        ],
+      },
     });
     expect(await provider.list()).toEqual(["file.txt", "password.gpg", "site/username.gpg"]);
-    expectFetchCommits();
-    expectFetchTree();
 
     // Same latest commit date, so no further requests are made.
     // No fetch queued up, so it would error otherwise.
-    queueFetchSuccess({ json: { created_at } });
+    expectNextFetch(pathCommitsBranch, { response: { json: { created_at } } });
     expect(await provider.list()).toEqual(["file.txt", "password.gpg", "site/username.gpg"]);
-    expectFetchCommits();
-    expect(global.fetch.calls.length).toBe(0); // Just to emphasize.
 
     // Simulate commit one second later.
-    queueFetchSuccess({ json: { created_at: "2000-01-01T00:00:01" } });
-    queueFetchSuccess({
-      headers: { link: getLinkHeader(1, 1) },
-      json: [
-        { path: "password.gpg", type: "blob" },
-        { path: "password2.gpg", type: "blob" },
-      ],
+    expectNextFetch(pathCommitsBranch, {
+      response: { json: { created_at: "2000-01-01T00:00:01" } },
+    });
+    expectNextFetch(pathTreeRecursive, {
+      response: {
+        headers: { link: { page: 1, total: 1 } },
+        json: [
+          { path: "password.gpg", type: "blob" },
+          { path: "password2.gpg", type: "blob" },
+        ],
+      },
     });
     expect(await provider.list()).toEqual(["password.gpg", "password2.gpg"]);
-    expectFetchCommits();
-    expectFetchTree();
   });
-
-  testFetchError(() => provider.list());
 });
 
 describe("has", () => {
   const path = "fake.txt";
 
   test("should return true if path exists", async () => {
-    queueFetchSuccess();
+    expectNextFetch(pathFiles(path), { request: { method: "HEAD" } });
     expect(await provider.has(path)).toBe(true);
-    expectFetchFiles(path, { method: "HEAD" });
   });
 
   test("should return false if path does not exist", async () => {
-    queueFetchError({ status: 404, statusText: "not found" });
+    expectNextFetch(pathFiles(path), { request: { method: "HEAD" }, response: { status: 404 } });
     expect(await provider.has(path)).toBe(false);
-    expectFetchFiles(path, { method: "HEAD" });
   });
-
-  testFetchError(() => provider.has(path));
 });
 
 describe("get", () => {
@@ -180,12 +172,9 @@ describe("get", () => {
   const content = "fake content";
 
   test("should return path content", async () => {
-    queueFetchSuccess({ json: { content: btoa(content) } });
+    expectNextFetch(pathFiles(path), { response: { json: { content } } });
     expect(await provider.get(path)).toBe(content);
-    expectFetchFiles(path);
   });
-
-  testFetchError(() => provider.get(path));
 });
 
 describe("set", () => {
@@ -194,22 +183,20 @@ describe("set", () => {
   const commit_message = "fake set";
 
   test("should add a new file", async () => {
-    queueFetchError({ status: 404, statusText: "not found" });
-    queueFetchSuccess();
+    expectNextFetch(pathFiles(path), { request: { method: "HEAD" }, response: { status: 404 } });
+    expectNextFetch(pathFiles(path), {
+      request: { method: "POST", body: { branch, content, commit_message } },
+    });
     await provider.set(path, content, commit_message);
-    expectFetchFiles(path, { method: "HEAD" });
-    expectFetchFiles(path, { method: "POST", body: { branch, content, commit_message } });
   });
 
-  test("should update an exising file", async () => {
-    queueFetchSuccess();
-    queueFetchSuccess();
+  test("should update an existing file", async () => {
+    expectNextFetch(pathFiles(path), { request: { method: "HEAD" } });
+    expectNextFetch(pathFiles(path), {
+      request: { method: "PUT", body: { branch, content, commit_message } },
+    });
     await provider.set(path, content, commit_message);
-    expectFetchFiles(path, { method: "HEAD" });
-    expectFetchFiles(path, { method: "PUT", body: { branch, content, commit_message } });
   });
-
-  testFetchError(() => provider.set(path, content, commit_message));
 });
 
 describe("remove", () => {
@@ -217,12 +204,11 @@ describe("remove", () => {
   const commit_message = "fake remove";
 
   test("should delete the file", async () => {
-    queueFetchSuccess();
+    expectNextFetch(pathFiles(path), {
+      request: { method: "DELETE", body: { branch, commit_message } },
+    });
     await provider.remove(path, commit_message);
-    expectFetchFiles(path, { method: "DELETE", body: { branch, commit_message } });
   });
-
-  testFetchError(() => provider.remove(path, commit_message));
 });
 
 describe("duplicate", () => {
@@ -231,27 +217,23 @@ describe("duplicate", () => {
   const content = "fake content";
   const commit_message = "fake duplicate";
 
-  test("should copy the file to a new path", async () => {
-    queueFetchSuccess({ json: { content: btoa(content) } });
-    queueFetchError({ status: 404, statusText: "not found" });
-    queueFetchSuccess();
+  test("should copy file to a new path", async () => {
+    expectNextFetch(pathFiles(from), { response: { json: { content } } });
+    expectNextFetch(pathFiles(to), { request: { method: "HEAD" }, response: { status: 404 } });
+    expectNextFetch(pathFiles(to), {
+      request: { method: "POST", body: { branch, content, commit_message } },
+    });
     await provider.duplicate(from, to, commit_message);
-    expectFetchFiles(from);
-    expectFetchFiles(to, { method: "HEAD" });
-    expectFetchFiles(to, { method: "POST", body: { branch, content, commit_message } });
   });
 
   test("should overwrite an existing file", async () => {
-    queueFetchSuccess({ json: { content: btoa(content) } });
-    queueFetchSuccess();
-    queueFetchSuccess();
+    expectNextFetch(pathFiles(from), { response: { json: { content } } });
+    expectNextFetch(pathFiles(to), { request: { method: "HEAD" } });
+    expectNextFetch(pathFiles(to), {
+      request: { method: "PUT", body: { branch, content, commit_message } },
+    });
     await provider.duplicate(from, to, commit_message);
-    expectFetchFiles(from);
-    expectFetchFiles(to, { method: "HEAD" });
-    expectFetchFiles(to, { method: "PUT", body: { branch, content, commit_message } });
   });
-
-  testFetchError(() => provider.duplicate(from, to, commit_message));
 });
 
 describe("rename", () => {
@@ -260,17 +242,16 @@ describe("rename", () => {
   const commit_message = "fake rename";
 
   test("should move the file", async () => {
-    queueFetchSuccess();
-    await provider.rename(from, to, commit_message);
-    expectFetch("commits", {
-      method: "POST",
-      body: {
-        branch,
-        commit_message,
-        actions: [{ action: "move", file_path: to, previous_path: from }],
+    expectNextFetch(pathCommits, {
+      request: {
+        method: "POST",
+        body: {
+          branch,
+          commit_message,
+          actions: [{ action: "move", file_path: to, previous_path: from }],
+        },
       },
     });
+    await provider.rename(from, to, commit_message);
   });
-
-  testFetchError(() => provider.rename(from, to, commit_message));
 });

@@ -1,5 +1,4 @@
 import { vi, describe, test, expect, beforeEach } from "vitest";
-import { FetchError } from "@/lib/error";
 import { default as createProvider, baseURL, version } from "./github";
 
 global.fetch = vi.fn();
@@ -9,44 +8,49 @@ const repo = "user/project";
 const branch = "main";
 const token = "fake token";
 
-function setFetchSuccess(json = null) {
-  global.fetch.mockImplementationOnce(async () => {
-    return { ok: true, json: async () => json };
-  });
-}
+const pathTrees = "git/trees";
+const pathTreesRecursive = `${pathTrees}/${branch}?recursive=1`;
+const pathCommits = "git/commits";
+const pathRef = `git/ref/heads/${branch}`;
+const pathRefs = `git/refs/heads/${branch}`;
+const pathContents = (path) => `contents/${path}`;
 
-function setFetchGetPath(content) {
-  const encoded = btoa(content);
-  const half = encoded.length / 2;
-  setFetchSuccess({ content: `${encoded.slice(0, half)}\n${encoded.slice(half)}` });
-}
+function expectNextFetch(path, options = {}) {
+  if (!options.request) options.request = {};
+  if (!options.response) options.response = {};
 
-function setFetchError(status, statusText) {
-  global.fetch.mockImplementationOnce(async () => {
-    return { ok: false, status, statusText };
-  });
-}
+  if (!options.request.headers) options.request.headers = {};
+  options.request.headers.accept = `application/vnd.github.${version}+json`;
+  options.request.headers.authorization = `token ${token}`;
 
-function expectFetchRequest(expectedPath, expectedPayload = {}) {
-  const [url, payload] = global.fetch.calls.shift();
-  expect(url).toBe(`${baseURL}/repos/${repo}/${expectedPath}`);
-  if (!expectedPayload.headers) expectedPayload.headers = {};
-  expectedPayload.headers.accept = `application/vnd.github.${version}+json`;
-  expectedPayload.headers.authorization = `token ${token}`;
-  if (expectedPayload.body) expectedPayload.headers["content-type"] = "application/json";
-  expect(payload).toEqual(expectedPayload);
-}
+  if (options.request.body) {
+    options.request.headers["content-type"] = "application/json";
+    if (options.request.body.content) {
+      options.request.body.content = btoa(options.request.body.content);
+    }
+    options.request.body = JSON.stringify(options.request.body);
+  }
 
-async function expectFetchError(promise, status, statusText) {
-  await expect(promise).rejects.toThrow(new FetchError({ status, statusText }));
-}
+  if (!options.response.status) options.response.status = 200;
 
-function testFetchError(callback) {
-  test("should throw a fetch error if response is not ok", async () => {
-    const status = 400;
-    const statusText = "oops";
-    setFetchError(status, statusText);
-    await expectFetchError(callback(), status, statusText);
+  options.response.ok = options.response.status < 400;
+
+  if (!options.response.statusText) options.response.statusText = "fake message";
+
+  const json = options.response.json || {};
+  if (json.content) {
+    // GitHub splits the content into lines, so to be sure this is handled,
+    // throw a newline in the middle.
+    const encoded = btoa(json.content);
+    const mid = encoded.length / 2;
+    json.content = `${encoded.slice(0, mid)}\n${encoded.slice(mid)}`;
+  }
+  options.response.json = async () => json;
+
+  global.fetch.mockImplementationOnce(async (url, request) => {
+    expect(url).toBe(`${baseURL}/repos/${repo}/${path}`);
+    expect(request).toEqual(options.request);
+    return options.response;
   });
 }
 
@@ -57,136 +61,105 @@ beforeEach(() => {
 
 describe("list", () => {
   test("should return every path recursively", async () => {
-    setFetchSuccess({
-      tree: [
-        { path: "file.txt", type: "blob" },
-        { path: "ignored", type: "not-blob" },
-        { path: "password.gpg", type: "blob" },
-        { path: "site/username.gpg", type: "blob" },
-      ],
+    expectNextFetch(pathTreesRecursive, {
+      response: {
+        json: {
+          tree: [
+            { path: "file.txt", type: "blob" },
+            { path: "ignored", type: "not-blob" },
+            { path: "password.gpg", type: "blob" },
+            { path: "site/username.gpg", type: "blob" },
+          ],
+        },
+      },
     });
     expect(await provider.list()).toEqual(["file.txt", "password.gpg", "site/username.gpg"]);
-    expectFetchRequest(`git/trees/${branch}?recursive=1`);
   });
-
-  testFetchError(() => provider.list());
 });
 
 describe("has", () => {
   const path = "foo.txt";
 
   test("should return true if path exists", async () => {
-    setFetchSuccess({ sha: "needs to be truthy" });
+    expectNextFetch(pathContents(path), { response: { json: { sha: "only needs to be truthy" } } });
     expect(await provider.has(path)).toBe(true);
-    expectFetchRequest(`contents/${path}`);
   });
 
   test("should return false if path does not exist", async () => {
-    setFetchError(404, "not found");
+    expectNextFetch(pathContents(path), { response: { status: 404 } });
     expect(await provider.has(path)).toBe(false);
-    expectFetchRequest(`contents/${path}`);
   });
-
-  testFetchError(() => provider.has(path));
 });
 
 describe("get", () => {
   const path = "foo.txt";
-  const content = "foobar";
+  const content = "fake content";
 
   test("should return path content", async () => {
-    setFetchGetPath(content);
+    expectNextFetch(pathContents(path), { response: { json: { content } } });
     expect(await provider.get(path)).toBe(content);
-    expectFetchRequest(`contents/${path}`);
   });
-
-  testFetchError(() => provider.get(path));
 });
 
 describe("set", () => {
   const path = "foo.txt";
-  const content = "content";
-  const message = "message";
+  const content = "fake content";
+  const message = "fake message";
 
   test("should add a new file", async () => {
-    setFetchError(404, "not found");
-    setFetchSuccess();
-    await provider.set(path, content, message);
-    expectFetchRequest(`contents/${path}`);
-    expectFetchRequest(`contents/${path}`, {
-      method: "PUT",
-      body: JSON.stringify({ message, content: btoa(content), sha: null }),
+    expectNextFetch(pathContents(path), { response: { status: 404 } });
+    expectNextFetch(pathContents(path), {
+      request: { method: "PUT", body: { message, content, sha: null } },
     });
+    await provider.set(path, content, message);
   });
 
   test("should update an exising file", async () => {
-    const sha = "fake";
-    setFetchSuccess({ sha });
-    setFetchSuccess();
-    await provider.set(path, content, message);
-    expectFetchRequest(`contents/${path}`);
-    expectFetchRequest(`contents/${path}`, {
-      method: "PUT",
-      body: JSON.stringify({ message, content: btoa(content), sha }),
+    const sha = "fake sha";
+    expectNextFetch(pathContents(path), { response: { json: { sha } } });
+    expectNextFetch(pathContents(path), {
+      request: { method: "PUT", body: { message, content, sha } },
     });
+    await provider.set(path, content, message);
   });
-
-  testFetchError(() => provider.set(path, content, message));
 });
 
 describe("remove", () => {
   const path = "foo.txt";
-  const message = "message";
+  const message = "fake message";
 
   test("should delete the file", async () => {
-    const sha = "fake";
-    setFetchSuccess({ sha });
-    setFetchSuccess();
+    const sha = "fake sha";
+    expectNextFetch(pathContents(path), { response: { json: { sha } } });
+    expectNextFetch(pathContents(path), { request: { method: "DELETE", body: { message, sha } } });
     await provider.remove(path, message);
-    expectFetchRequest(`contents/${path}`);
-    expectFetchRequest(`contents/${path}`, {
-      method: "DELETE",
-      body: JSON.stringify({ message, sha }),
-    });
   });
-
-  testFetchError(() => provider.remove(path, message));
 });
 
 describe("duplicate", () => {
   const from = "foo.txt";
   const to = "bar.txt";
-  const content = "content";
-  const message = "message";
+  const content = "fake content";
+  const message = "fake message";
 
   test("should copy the file to a new path", async () => {
-    setFetchGetPath(content);
-    setFetchError(404, "not found");
-    setFetchSuccess();
-    await provider.duplicate(from, to, message);
-    expectFetchRequest(`contents/${from}`);
-    expectFetchRequest(`contents/${to}`);
-    expectFetchRequest(`contents/${to}`, {
-      method: "PUT",
-      body: JSON.stringify({ message, content: btoa(content), sha: null }),
+    expectNextFetch(pathContents(from), { response: { json: { content } } });
+    expectNextFetch(pathContents(to), { response: { status: 404 } });
+    expectNextFetch(pathContents(to), {
+      request: { method: "PUT", body: { message, content, sha: null } },
     });
+    await provider.duplicate(from, to, message);
   });
 
   test("should overwrite an existing file", async () => {
-    const sha = "fake";
-    setFetchGetPath(content);
-    setFetchSuccess({ sha });
-    setFetchSuccess();
-    await provider.duplicate(from, to, message);
-    expectFetchRequest(`contents/${from}`);
-    expectFetchRequest(`contents/${to}`);
-    expectFetchRequest(`contents/${to}`, {
-      method: "PUT",
-      body: JSON.stringify({ message, content: btoa(content), sha }),
+    const sha = "fake sha";
+    expectNextFetch(pathContents(from), { response: { json: { content } } });
+    expectNextFetch(pathContents(to), { response: { json: { sha } } });
+    expectNextFetch(pathContents(to), {
+      request: { method: "PUT", body: { message, content, sha } },
     });
+    await provider.duplicate(from, to, message);
   });
-
-  testFetchError(() => provider.duplicate(from, to, message));
 });
 
 describe("rename", () => {
@@ -196,70 +169,50 @@ describe("rename", () => {
 
   test("should move the file to a new path", async () => {
     const shaTree = "fake tree";
-    const shaCommit = "fake commit";
     const shaHead = "fake head";
+    const shaCommit = "fake commit";
     const tracker = "to make sure it's the same object";
-    setFetchSuccess({ tree: [{ path: from, type: "blob", tracker }] });
-    setFetchSuccess({ sha: shaTree });
-    setFetchSuccess({ object: { sha: shaHead } });
-    setFetchSuccess({ sha: shaCommit });
-    setFetchSuccess();
+    expectNextFetch(pathTreesRecursive, {
+      response: { json: { tree: [{ path: from, type: "blob", tracker }] } },
+    });
+    expectNextFetch(pathTrees, {
+      request: { method: "POST", body: { tree: [{ path: to, type: "blob", tracker }] } },
+      response: { json: { sha: shaTree } },
+    });
+    expectNextFetch(pathRef, { response: { json: { object: { sha: shaHead } } } });
+    expectNextFetch(pathCommits, {
+      request: { method: "POST", body: { message, tree: shaTree, parents: [shaHead] } },
+      response: { json: { sha: shaCommit } },
+    });
+    expectNextFetch(pathRefs, { request: { method: "PATCH", body: { sha: shaCommit } } });
     await provider.rename(from, to, message);
-    expectFetchRequest(`git/trees/${branch}?recursive=1`);
-    expectFetchRequest("git/trees", {
-      method: "POST",
-      body: JSON.stringify({ tree: [{ path: to, type: "blob", tracker }] }),
-    });
-    expectFetchRequest(`git/ref/heads/${branch}`);
-    expectFetchRequest("git/commits", {
-      method: "POST",
-      body: JSON.stringify({
-        message,
-        tree: shaTree,
-        parents: [shaHead],
-      }),
-    });
-    expectFetchRequest(`git/refs/heads/${branch}`, {
-      method: "PATCH",
-      body: JSON.stringify({ sha: shaCommit }),
-    });
   });
 
   test("should overwrite an existing file", async () => {
     const shaTree = "fake tree";
-    const shaCommit = "fake commit";
     const shaHead = "fake head";
+    const shaCommit = "fake commit";
     const tracker = "to make sure it's the same object";
-    setFetchSuccess({
-      tree: [
-        { path: from, type: "blob", tracker },
-        { path: to, type: "blob" },
-      ],
+    expectNextFetch(pathTreesRecursive, {
+      response: {
+        json: {
+          tree: [
+            { path: from, type: "blob", tracker },
+            { path: to, type: "blob" },
+          ],
+        },
+      },
     });
-    setFetchSuccess({ sha: shaTree });
-    setFetchSuccess({ object: { sha: shaHead } });
-    setFetchSuccess({ sha: shaCommit });
-    setFetchSuccess();
+    expectNextFetch(pathTrees, {
+      request: { method: "POST", body: { tree: [{ path: to, type: "blob", tracker }] } },
+      response: { json: { sha: shaTree } },
+    });
+    expectNextFetch(pathRef, { response: { json: { object: { sha: shaHead } } } });
+    expectNextFetch(pathCommits, {
+      request: { method: "POST", body: { message, tree: shaTree, parents: [shaHead] } },
+      response: { json: { sha: shaCommit } },
+    });
+    expectNextFetch(pathRefs, { request: { method: "PATCH", body: { sha: shaCommit } } });
     await provider.rename(from, to, message);
-    expectFetchRequest(`git/trees/${branch}?recursive=1`);
-    expectFetchRequest("git/trees", {
-      method: "POST",
-      body: JSON.stringify({ tree: [{ path: to, type: "blob", tracker }] }),
-    });
-    expectFetchRequest(`git/ref/heads/${branch}`);
-    expectFetchRequest("git/commits", {
-      method: "POST",
-      body: JSON.stringify({
-        message,
-        tree: shaTree,
-        parents: [shaHead],
-      }),
-    });
-    expectFetchRequest(`git/refs/heads/${branch}`, {
-      method: "PATCH",
-      body: JSON.stringify({ sha: shaCommit }),
-    });
   });
-
-  testFetchError(() => provider.rename(from, to, message));
 });
