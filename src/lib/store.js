@@ -4,12 +4,12 @@ const extension = ".gpg";
 function serialize(entry) {
   const password = entry.password || "";
   const extra = entry.extra || "";
-  return password + newline + extra;
+  return (password + newline + extra).trim();
 }
 
 function deserialize(text) {
   const lines = text.split(newline);
-  const password = lines[0] || "";
+  const password = lines[0];
   const extra = lines.slice(1).join(newline);
   return { password, extra };
 }

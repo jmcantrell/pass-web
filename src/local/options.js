@@ -2,11 +2,7 @@ import { config as pgpConfig } from "openpgp";
 import { createLocalStorageStore } from "@/lib/svelte/store";
 import schema from "@/schemas/options";
 
-function validate(options) {
-  return schema.validateSync(options || {});
-}
-
-const options = createLocalStorageStore("options", { defaults: {}, validate });
+const options = createLocalStorageStore("options", schema.default());
 
 options.subscribe(($options) => {
   if ($options.crypto.compression.algorithm) {

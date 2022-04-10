@@ -89,6 +89,18 @@ describe("has", () => {
     expectNextFetch(pathContents(path), { response: { status: 404 } });
     expect(await provider.has(path)).toBe(false);
   });
+
+  test("should only intercept 404 responses", async () => {
+    expectNextFetch(pathContents(path), { response: { status: 400 } });
+    await expect(provider.has(path)).rejects.toThrow();
+  });
+
+  test("should not intercept other errors", async () => {
+    global.fetch.mockImplementationOnce(() => {
+      throw new Error("boom!");
+    });
+    await expect(provider.has(path)).rejects.toThrow();
+  });
 });
 
 describe("get", () => {

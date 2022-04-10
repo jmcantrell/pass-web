@@ -94,16 +94,23 @@ describe("get", () => {
 });
 
 describe("set", () => {
+  test("should accept empty values", async () => {
+    await store.set("new", {});
+    expect(await cryptor.decrypt(files["new.gpg"])).toBe("");
+  });
+
   test("should add encrypted entry", async () => {
     await store.set("new", { password, extra });
-    expect(files["new.gpg"]).toMatch(encryptedMessageRegExp);
+    expect(await cryptor.decrypt(files["new.gpg"])).toBe(`${password}\n${extra}`);
     expect(provider.set.calls[0][0]).toBe("new.gpg");
     expect(provider.set.calls[0][2]).toBe("Add password for new using web interface.");
   });
 
   test("should overwrite existing entry", async () => {
+    const password = "password2";
+    const extra = "extra2";
     await store.set("stuff", { password, extra });
-    expect(files["stuff.gpg"]).toMatch(encryptedMessageRegExp);
+    expect(await cryptor.decrypt(files["stuff.gpg"])).toBe(`${password}\n${extra}`);
     expect(provider.set.calls[0][0]).toBe("stuff.gpg");
     expect(provider.set.calls[0][2]).toBe("Edit password for stuff using web interface.");
   });

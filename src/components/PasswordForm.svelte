@@ -1,7 +1,6 @@
 <script>
   import { onMount } from "svelte";
   import pwgen from "@/lib/pwgen";
-  import { copy } from "@/lib/clipboard";
   import Password from "@/components/Password";
   import NameField from "@/components/NameField";
   import PasswordGeneratorForm from "@/components/PasswordGeneratorForm";
@@ -23,7 +22,7 @@
   });
 
   async function onCopyButtonClick() {
-    await copy(password);
+    await navigator.clipboard.writeText(password);
   }
 
   function onGenerateButtonClick() {
