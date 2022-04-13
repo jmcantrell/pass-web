@@ -4,6 +4,6 @@
 
 <p class="loading">
   <slot>
-    Loading{#if name} {" " + name}{/if}...
+    Loading{#if name}{" " + name}{/if}...
   </slot>
 </p>

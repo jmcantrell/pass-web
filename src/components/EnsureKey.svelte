@@ -5,12 +5,8 @@
   export let name;
 </script>
 
-{#if name}
-  {#if name in $keys}
-    <slot />
-  {:else}
-    <NotFound name="Key" value={name} />
-  {/if}
+{#if name in $keys}
+  <slot />
 {:else}
-  <NotFound name="Key" />
+  <NotFound name="Key" value={name} />
 {/if}

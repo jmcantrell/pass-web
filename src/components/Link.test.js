@@ -14,7 +14,7 @@ function testLink(a, options = {}) {
   expect(url.search.slice(1)).toBe(search.toString());
 }
 
-test("links render correctly", () => {
+test("component renders correctly", () => {
   const { getByText } = render(LinkUsage, { path });
   testLink(getByText(`/test/${path}`));
   testLink(getByText("Simple"));
