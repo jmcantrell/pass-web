@@ -5,13 +5,11 @@ import dynamicImport from "vite-plugin-dynamic-import";
 import packageConfig from "./package.json";
 
 export default function ({ mode }) {
-  const test = mode == "test";
   const production = mode == "production";
   const development = mode == "development";
 
   const config = {
     root: join(__dirname, "src"),
-    base: test ? "/test/" : process.env.BASE_URL || "/",
     publicDir: join(__dirname, "public"),
     define: Object.fromEntries(
       ["name", "version", "homepage", "bugs"].map((key) => {

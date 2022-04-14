@@ -1,38 +1,6 @@
 <script>
-  import { onMount } from "svelte";
   import stores from "@/local/stores";
   import options from "@/local/options";
-
-  let timeoutHandle;
-
-  options.subscribe(($options) => {
-    stopTimeout();
-    if ($options.locker.enabled) {
-      addVisibilityListener();
-    } else {
-      removeVisibilityListener();
-    }
-  });
-
-  onMount(() => {
-    addVisibilityListener();
-    return () => {
-      stopTimeout();
-      removeVisibilityListener();
-    };
-  });
-
-  function addVisibilityListener() {
-    document.addEventListener("visibilitychange", onVisibilityChange);
-  }
-
-  function removeVisibilityListener() {
-    document.removeEventListener("visibilitychange", onVisibilityChange);
-  }
-
-  function stopTimeout() {
-    clearTimeout(timeoutHandle);
-  }
 
   function lockAllStores() {
     for (const store of Object.values($stores)) {
@@ -41,10 +9,25 @@
   }
 
   function onVisibilityChange() {
-    if (document.visibilityState == "hidden") {
-      timeoutHandle = setTimeout(lockAllStores, $options.locker.timeout * 1000);
+    if ($options.locker.enabled && document.hidden) {
+      if ($options.locker.timeout === 0) {
+        lockAllStores();
+      } else {
+        timeoutHandle = setTimeout(lockAllStores, $options.locker.timeout * 1000);
+      }
     } else {
-      stopTimeout();
+      clearTimeout(timeoutHandle);
     }
   }
+
+  let timeoutHandle;
+
+  options.subscribe(($options) => {
+    onVisibilityChange();
+    if ($options.locker.enabled) {
+      document.addEventListener("visibilitychange", onVisibilityChange);
+    } else {
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    }
+  });
 </script>

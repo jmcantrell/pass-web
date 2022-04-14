@@ -3,8 +3,6 @@
   export let path;
 </script>
 
-<!-- Every href will be prefixed with BASE_URL. -->
-
 <!-- Link text defaults to the generated href -->
 <Link {path} />
 

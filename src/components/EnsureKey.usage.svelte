@@ -1,8 +1,5 @@
 <script>
   import EnsureKey from "./EnsureKey";
-  import keys from "@/local/keys";
-
-  keys.set({ foo: "value is not used" }); 
 </script>
 
 <EnsureKey name="bogus">

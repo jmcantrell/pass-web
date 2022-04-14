@@ -1,10 +1,5 @@
 <script>
   import EnsureStore from "./EnsureStore";
-  import stores from "@/local/stores";
-
-  stores.set = () => {};
-
-  $stores.foo = "value does not matter";
 </script>
 
 <EnsureStore name="bogus">
